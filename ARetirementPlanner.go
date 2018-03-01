@@ -177,11 +177,10 @@ func commandLineFlagWasSet(flag string) bool {
 		// command line set this flag
 		fmt.Printf("command line set flag: %s\n", flag)
 		return true
-	} else {
-		// command line did NOT set this flag
-		fmt.Printf("command line did NOT set flag: %s\n", flag)
-		return false
 	}
+	// command line did NOT set this flag
+	fmt.Printf("command line did NOT set flag: %s\n", flag)
+	return false
 }
 
 func main() {
