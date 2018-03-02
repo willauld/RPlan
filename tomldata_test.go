@@ -5,7 +5,9 @@ import (
 	"testing"
 )
 
-//
+func TestDoItWithUnMarshal(t *testing.T) {
+	doItWithUnMarshal()
+}
 
 func TestGetTomlData(t *testing.T) {
 	tests := []struct {

@@ -8,6 +8,7 @@ import (
 	"github.com/pelletier/go-toml"
 )
 
+// Iam is the declearation of the user
 type Iam struct {
 	Primary                 bool
 	Age                     int
@@ -19,6 +20,7 @@ type Iam struct {
 var iamKeys = []string{"primary", "age", "retire", "through", "definedContributionPlan"}
 var iamReqKeys = []string{"age", "retire", "through"}
 
+// SocialSecurity is the Social Security information of the user
 type SocialSecurity struct {
 	Amount int
 	Age    string
@@ -27,6 +29,7 @@ type SocialSecurity struct {
 var socialSecurityKeys = []string{"amount", "age"}
 var socialSecurityReqKeys = socialSecurityKeys
 
+// Income is an income stream for the user
 type Income struct {
 	Amount    int
 	Age       string
@@ -37,6 +40,7 @@ type Income struct {
 var incomeKeys = []string{"amount", "age", "inflation", "tax"}
 var incomeReqKeys = []string{"amount", "age"}
 
+// Expense if an expense stream for of the user
 type Expense struct {
 	Amount    int
 	Age       string // FIXME TODO change toml def to be nicer eg this should be period rather than age
@@ -46,6 +50,7 @@ type Expense struct {
 var expenseKeys = []string{"amount", "age", "inflation"}
 var expenseReqKeys = []string{"amount", "age"}
 
+// Asset is a user owned asset the may be sold
 type Asset struct {
 	Value               int
 	CostAndImprovements int
@@ -59,6 +64,7 @@ type Asset struct {
 var assetKeys = []string{"value", "costAndImprovements", "ageToSell", "owedAtAgeToSell", "primaryResidence", "rate", "brokerageRate"}
 var assetReqKeys = []string{"value", "costAndImprovements", "ageToSell", "owedAtAgeToSell"}
 
+// Desired is the minium after tax spending amount the user requires
 type Desired struct {
 	Amount int
 }
@@ -66,6 +72,7 @@ type Desired struct {
 var desiredKeys = []string{"amount"}
 var desiredReqKeys = desiredKeys
 
+// Max is the maximum after tax spending amount the user want to spend
 type Max struct {
 	Amount int
 }
@@ -73,6 +80,7 @@ type Max struct {
 var maxKeys = []string{"amount"}
 var maxReqKeys = maxKeys
 
+// IRA is the IRA account info for the user
 type IRA struct {
 	Bal       int
 	Rate      float64
@@ -81,9 +89,10 @@ type IRA struct {
 	Period    string
 }
 
-var IRAKeys = []string{"bal", "rate", "contrib", "inflation", "period"}
-var IRAReqKeys = []string{"bal"}
+var iRAKeys = []string{"bal", "rate", "contrib", "inflation", "period"}
+var iRAReqKeys = []string{"bal"}
 
+// Roth is the roth account info for the user
 type Roth struct {
 	Bal       int
 	Rate      float64
@@ -92,9 +101,10 @@ type Roth struct {
 	Period    string
 }
 
-var rothKeys = IRAKeys
-var rothReqKeys = IRAReqKeys
+var rothKeys = iRAKeys
+var rothReqKeys = iRAReqKeys
 
+// Aftertax is the aftertax account info for the user
 type Aftertax struct {
 	Bal       int
 	Basis     int
@@ -105,14 +115,23 @@ type Aftertax struct {
 }
 
 var aftertaxKeys = []string{"bal", "basis", "rate", "contrib", "inflation", "period"}
-var aftertaxReqKeys = IRAReqKeys
+var aftertaxReqKeys = iRAReqKeys
 
+// GlobalConfig is all the information the user need enter for the retirement plan
 type GlobalConfig struct {
 	Title          string
-	RetirementType string
+	RetirementType string `toml:"retirement_type"`
 	Returns        float64
 	Inflation      float64
 	Maximize       string
+	Iam            map[string]Iam
+	SocialSecurity map[string]SocialSecurity
+	IRA            map[string]IRA
+	Roth           map[string]Roth
+	Aftertax       Aftertax
+	Asset          map[string]Asset
+	Income         map[string]Income
+	Expense        map[string]Expense
 }
 
 var globalKeys = []string{"title", "retirement_type", "returns", "inflation", "maximize"}
@@ -125,13 +144,21 @@ var categoryKeys = []string{ //Top level key with global keys replace by single 
 	"IRA",
 	"roth",
 	"aftertax",
-	"income",
 	"asset",
+	"income",
 	"expense",
 }
 
 func doItWithUnMarshal() {
+	gc := GlobalConfig{}
 	//toml.Unmarshal(document, &person)
+	config, err := toml.LoadFile("hack.toml")
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		return
+	}
+	config.Unmarshal(&gc)
+	fmt.Printf("\ndoc22: %#v\n", gc)
 }
 
 // Required to have iam, retirement_type and at least one of IRA, roth or Aftertax
@@ -161,7 +188,7 @@ func categoryMatch(parent string, keys []string) bool {
 	case "SocialSecurity":
 		reqKeys = socialSecurityReqKeys
 	case "IRA":
-		reqKeys = IRAReqKeys
+		reqKeys = iRAReqKeys
 	case "roth":
 		reqKeys = rothReqKeys
 	case "aftertax":
@@ -190,7 +217,7 @@ func getFloat64Value(obj interface{}) float64 {
 	case "float64":
 		targetVal = obj.(float64)
 	}
-	fmt.Printf("getFloat64Value, got: %g\n", targetVal)
+	//fmt.Printf("getFloat64Value, got: %g\n", targetVal)
 	return targetVal
 }
 
@@ -202,7 +229,7 @@ func getInt64Value(obj interface{}) int64 {
 	case "float64":
 		targetVal = int64(obj.(float64))
 	}
-	fmt.Printf("getInt64Value, got: %d\n", targetVal)
+	//fmt.Printf("getInt64Value, got: %d\n", targetVal)
 	return targetVal
 }
 
@@ -304,7 +331,7 @@ func getTomlAftertax(config *toml.Tree, path string) *Aftertax {
 			fmt.Printf("*** EERROOOORR ***\n")
 			return nil
 		}
-		fmt.Printf("aftertax config: %#v\n", aftertaxCfig)
+		//fmt.Printf("aftertax config: %#v\n", aftertaxCfig)
 		return &aftertaxCfig
 	}
 	return nil
@@ -443,7 +470,7 @@ func getTomlIRA(config *toml.Tree, path string) *IRA {
 		pathT := config.Get(path).(*toml.Tree)
 		keys := pathT.Keys()
 		if categoryMatch(path, keys) { // FIXME TODO maybe this should be a leaf check instead
-			for _, v := range IRAKeys {
+			for _, v := range iRAKeys {
 				lPath := path + "." + v
 				lPathobj := config.Get(lPath)
 				//var IRAKeys = []string{"bal", "rate", "contrib", "inflation", "period"}
@@ -785,35 +812,44 @@ func goGetTomlData() {
 	}
 	//fmt.Printf("\nKeys: %#v\n", config.Keys())
 	//for _, b := range config.Keys()
+	var gc GlobalConfig
 	for _, path := range categoryKeys {
 		switch path {
 		case "global":
-			c := getTomlGlobal(config)
-			fmt.Printf("global configs: %#v\n", c)
+			gc = getTomlGlobal(config)
+			//fmt.Printf("global configs: %#v\n", gc)
 		case "iam":
 			c := getTomlIAmMap(config, path)
-			fmt.Printf("iam configs map: %#v\n", c)
+			gc.Iam = *c
+			//fmt.Printf("iam configs map: %#v\n", c)
 		case "SocialSecurity":
 			c := getTomlSocialSecurityMap(config, path)
-			fmt.Printf("socail security configs map: %#v\n", c)
+			gc.SocialSecurity = *c
+			//fmt.Printf("socail security configs map: %#v\n", c)
 		case "IRA":
 			c := getTomlIRAMap(config, path)
-			fmt.Printf("IRA configs map: %#v\n", c)
+			gc.IRA = *c
+			//fmt.Printf("IRA configs map: %#v\n", c)
 		case "roth":
 			c := getTomlRothMap(config, path)
-			fmt.Printf("Roth configs map: %#v\n", c)
+			gc.Roth = *c
+			//fmt.Printf("Roth configs map: %#v\n", c)
 		case "aftertax":
 			c := getTomlAftertax(config, path)
-			fmt.Printf("aftertax configs: %#v\n", c)
+			gc.Aftertax = *c
+			//fmt.Printf("aftertax configs: %#v\n", c)
 		case "income":
 			c := getTomlIncomeMap(config, path)
-			fmt.Printf("Income configs map: %#v\n", c)
+			gc.Income = *c
+			//fmt.Printf("Income configs map: %#v\n", c)
 		case "asset":
 			c := getTomlAssetMap(config, path)
-			fmt.Printf("Asset configs map: %#v\n", c)
+			gc.Asset = *c
+			//fmt.Printf("Asset configs map: %#v\n", c)
 		case "expense":
 			c := getTomlExpenseMap(config, path)
-			fmt.Printf("Expense configs map: %#v\n", c)
+			gc.Expense = *c
+			//fmt.Printf("Expense configs map: %#v\n", c)
 		default:
 			pathT := config.Get(path).(*toml.Tree) //TomlTree)
 			keys := pathT.Keys()
@@ -835,6 +871,7 @@ func goGetTomlData() {
 			}
 		}
 	}
+	fmt.Printf("Global configs all: %#v\n", gc)
 }
 
 func try2() {
