@@ -8,111 +8,111 @@ import (
 	"github.com/pelletier/go-toml"
 )
 
-type iam struct {
-	primary                 bool
-	age                     int
-	retire                  int
-	through                 int
-	definedContributionPlan string
+type Iam struct {
+	Primary                 bool
+	Age                     int
+	Retire                  int
+	Through                 int
+	DefinedContributionPlan string
 }
 
 var iamKeys = []string{"primary", "age", "retire", "through", "definedContributionPlan"}
 var iamReqKeys = []string{"age", "retire", "through"}
 
-type socialSecurity struct {
-	amount int
-	age    string
+type SocialSecurity struct {
+	Amount int
+	Age    string
 }
 
 var socialSecurityKeys = []string{"amount", "age"}
 var socialSecurityReqKeys = socialSecurityKeys
 
-type income struct {
-	amount    int
-	age       string
-	inflation bool
-	tax       bool
+type Income struct {
+	Amount    int
+	Age       string
+	Inflation bool
+	Tax       bool
 }
 
 var incomeKeys = []string{"amount", "age", "inflation", "tax"}
 var incomeReqKeys = []string{"amount", "age"}
 
-type expense struct {
-	amount    int
-	age       string // FIXME TODO change toml def to be nicer eg this should be period rather than age
-	inflation bool
+type Expense struct {
+	Amount    int
+	Age       string // FIXME TODO change toml def to be nicer eg this should be period rather than age
+	Inflation bool
 }
 
 var expenseKeys = []string{"amount", "age", "inflation"}
 var expenseReqKeys = []string{"amount", "age"}
 
-type asset struct {
-	value               int
-	costAndImprovements int
-	ageToSell           int
-	owedAtAgeToSell     int
-	primaryResidence    bool
-	rate                float64
-	brokerageRate       float64
+type Asset struct {
+	Value               int
+	CostAndImprovements int
+	AgeToSell           int
+	OwedAtAgeToSell     int
+	PrimaryResidence    bool
+	Rate                float64
+	BrokerageRate       float64
 }
 
 var assetKeys = []string{"value", "costAndImprovements", "ageToSell", "owedAtAgeToSell", "primaryResidence", "rate", "brokerageRate"}
 var assetReqKeys = []string{"value", "costAndImprovements", "ageToSell", "owedAtAgeToSell"}
 
-type desired struct {
-	amount int
+type Desired struct {
+	Amount int
 }
 
 var desiredKeys = []string{"amount"}
 var desiredReqKeys = desiredKeys
 
-type max struct {
-	amount int
+type Max struct {
+	Amount int
 }
 
 var maxKeys = []string{"amount"}
 var maxReqKeys = maxKeys
 
 type IRA struct {
-	bal       int
-	rate      float64
-	contrib   int
-	inflation bool
-	period    string
+	Bal       int
+	Rate      float64
+	Contrib   int
+	Inflation bool
+	Period    string
 }
 
 var IRAKeys = []string{"bal", "rate", "contrib", "inflation", "period"}
 var IRAReqKeys = []string{"bal"}
 
-type roth struct {
-	bal       int
-	rate      float64
-	contrib   int
-	inflation bool
-	period    string
+type Roth struct {
+	Bal       int
+	Rate      float64
+	Contrib   int
+	Inflation bool
+	Period    string
 }
 
 var rothKeys = IRAKeys
 var rothReqKeys = IRAReqKeys
 
-type aftertax struct {
-	bal       int
-	basis     int
-	rate      float64
-	contrib   int
-	inflation bool
-	period    string
+type Aftertax struct {
+	Bal       int
+	Basis     int
+	Rate      float64
+	Contrib   int
+	Inflation bool
+	Period    string
 }
 
 var aftertaxKeys = []string{"bal", "basis", "rate", "contrib", "inflation", "period"}
 var aftertaxReqKeys = IRAReqKeys
 
-type globalConfig struct {
-	title          string
-	retirementType string
-	returns        float64
-	inflation      float64
-	maximize       string
+type GlobalConfig struct {
+	Title          string
+	RetirementType string
+	Returns        float64
+	Inflation      float64
+	Maximize       string
 }
 
 var globalKeys = []string{"title", "retirement_type", "returns", "inflation", "maximize"}
@@ -128,6 +128,10 @@ var categoryKeys = []string{ //Top level key with global keys replace by single 
 	"income",
 	"asset",
 	"expense",
+}
+
+func doItWithUnMarshal() {
+	//toml.Unmarshal(document, &person)
 }
 
 // Required to have iam, retirement_type and at least one of IRA, roth or Aftertax
@@ -202,41 +206,41 @@ func getInt64Value(obj interface{}) int64 {
 	return targetVal
 }
 
-func getTomlGlobal(config *toml.Tree) globalConfig {
-	globals := globalConfig{}
+func getTomlGlobal(config *toml.Tree) GlobalConfig {
+	globals := GlobalConfig{}
 	for _, lPath := range globalKeys {
 		lPathobj := config.Get(lPath)
 		switch lPath {
 		case "title":
 			if config.Has(lPath) {
-				globals.title = lPathobj.(string)
+				globals.Title = lPathobj.(string)
 				continue
 			}
-			globals.title = ""
+			globals.Title = ""
 		case "retirement_type":
 			if config.Has(lPath) {
-				globals.retirementType = lPathobj.(string)
+				globals.RetirementType = lPathobj.(string)
 				continue
 			}
-			globals.retirementType = ""
+			globals.RetirementType = ""
 		case "returns":
 			if config.Has(lPath) {
-				globals.returns = getFloat64Value(lPathobj)
+				globals.Returns = getFloat64Value(lPathobj)
 				continue
 			}
-			globals.returns = -1
+			globals.Returns = -1
 		case "inflation":
 			if config.Has(lPath) {
-				globals.inflation = getFloat64Value(lPathobj)
+				globals.Inflation = getFloat64Value(lPathobj)
 				continue
 			}
-			globals.inflation = -1
+			globals.Inflation = -1
 		case "maximize":
 			if config.Has(lPath) {
-				globals.maximize = lPathobj.(string)
+				globals.Maximize = lPathobj.(string)
 				continue
 			}
-			globals.maximize = ""
+			globals.Maximize = ""
 		default:
 			fmt.Printf("*** Implement ME(%s) ****\n", lPath)
 		}
@@ -244,10 +248,10 @@ func getTomlGlobal(config *toml.Tree) globalConfig {
 	return globals
 }
 
-func getTomlAftertax(config *toml.Tree, path string) *aftertax {
+func getTomlAftertax(config *toml.Tree, path string) *Aftertax {
 
 	if config.Has(path) {
-		aftertaxCfig := aftertax{}
+		aftertaxCfig := Aftertax{}
 		pathT := config.Get(path).(*toml.Tree)
 		keys := pathT.Keys()
 		//fmt.Printf("\npath: %s tree keys: %#v\n", path, keys)
@@ -259,41 +263,41 @@ func getTomlAftertax(config *toml.Tree, path string) *aftertax {
 				switch v {
 				case "bal":
 					if config.Has(lPath) {
-						aftertaxCfig.bal = int(getInt64Value(lPathobj))
+						aftertaxCfig.Bal = int(getInt64Value(lPathobj))
 						continue
 					}
-					aftertaxCfig.bal = -1
+					aftertaxCfig.Bal = -1
 				case "basis":
 					if config.Has(lPath) {
-						aftertaxCfig.basis = int(getInt64Value(lPathobj))
+						aftertaxCfig.Basis = int(getInt64Value(lPathobj))
 						continue
 					}
-					aftertaxCfig.basis = -1
+					aftertaxCfig.Basis = -1
 				case "contrib":
 					if config.Has(lPath) {
-						aftertaxCfig.contrib = int(getInt64Value(lPathobj))
+						aftertaxCfig.Contrib = int(getInt64Value(lPathobj))
 						continue
 					}
-					aftertaxCfig.contrib = -1
+					aftertaxCfig.Contrib = -1
 				case "rate":
 					if config.Has(lPath) {
-						aftertaxCfig.rate = getFloat64Value(lPathobj)
+						aftertaxCfig.Rate = getFloat64Value(lPathobj)
 						continue
 					}
-					aftertaxCfig.rate = -1
+					aftertaxCfig.Rate = -1
 				case "inflation":
 					if config.Has(lPath) {
-						aftertaxCfig.inflation = lPathobj.(bool)
+						aftertaxCfig.Inflation = lPathobj.(bool)
 						continue
 					}
-					aftertaxCfig.inflation = true
+					aftertaxCfig.Inflation = true
 					//TODO FIXME setting default bool to TRUE IS THIS WHAT IT SHOULD BE???
 				case "period":
 					if config.Has(lPath) {
-						aftertaxCfig.period = lPathobj.(string)
+						aftertaxCfig.Period = lPathobj.(string)
 						continue
 					}
-					aftertaxCfig.period = ""
+					aftertaxCfig.Period = ""
 				}
 			}
 		} else {
@@ -306,10 +310,10 @@ func getTomlAftertax(config *toml.Tree, path string) *aftertax {
 	return nil
 }
 
-func getTomlIAm(config *toml.Tree, path string) *iam {
+func getTomlIAm(config *toml.Tree, path string) *Iam {
 
 	if config.Has(path) {
-		iamCfig := iam{}
+		iamCfig := Iam{}
 		pathT := config.Get(path).(*toml.Tree)
 		keys := pathT.Keys()
 		//fmt.Printf("\npath: %s tree keys: %#v\n", path, keys)
@@ -320,34 +324,34 @@ func getTomlIAm(config *toml.Tree, path string) *iam {
 				switch v {
 				case "age":
 					if config.Has(lPath) {
-						iamCfig.age = int(getInt64Value(lPathobj))
+						iamCfig.Age = int(getInt64Value(lPathobj))
 						continue
 					}
-					iamCfig.age = -1
+					iamCfig.Age = -1
 				case "retire":
 					if config.Has(lPath) {
-						iamCfig.retire = int(getInt64Value(lPathobj))
+						iamCfig.Retire = int(getInt64Value(lPathobj))
 						continue
 					}
-					iamCfig.retire = -1
+					iamCfig.Retire = -1
 				case "through":
 					if config.Has(lPath) {
-						iamCfig.through = int(getInt64Value(lPathobj))
+						iamCfig.Through = int(getInt64Value(lPathobj))
 						continue
 					}
-					iamCfig.through = -1
+					iamCfig.Through = -1
 				case "definedContributionPlan":
 					if config.Has(lPath) {
-						iamCfig.definedContributionPlan = lPathobj.(string)
+						iamCfig.DefinedContributionPlan = lPathobj.(string)
 						continue
 					}
-					iamCfig.definedContributionPlan = ""
+					iamCfig.DefinedContributionPlan = ""
 				case "primary":
 					if config.Has(lPath) {
-						iamCfig.primary = lPathobj.(bool)
+						iamCfig.Primary = lPathobj.(bool)
 						continue
 					}
-					iamCfig.primary = false
+					iamCfig.Primary = false
 				}
 			}
 		} else {
@@ -359,11 +363,11 @@ func getTomlIAm(config *toml.Tree, path string) *iam {
 	return nil
 }
 
-func getTomlIAmMap(config *toml.Tree, path string) *map[string]iam {
+func getTomlIAmMap(config *toml.Tree, path string) *map[string]Iam {
 	pathT := config.Get(path).(*toml.Tree)
 	keys := pathT.Keys()
 	//fmt.Printf("\npath: %s tree keys: %#v\n", path, keys)
-	m := make(map[string]iam)
+	m := make(map[string]Iam)
 	if categoryMatch(path, keys) { // FIXME TODO maybe this should be a leaf check instead
 		m["nokey"] = *getTomlIAm(config, path)
 		return &m
@@ -378,10 +382,10 @@ func getTomlIAmMap(config *toml.Tree, path string) *map[string]iam {
 	return &m
 }
 
-func getTomlSocialSecurity(config *toml.Tree, path string) *socialSecurity {
+func getTomlSocialSecurity(config *toml.Tree, path string) *SocialSecurity {
 
 	if config.Has(path) {
-		ssCfig := socialSecurity{}
+		ssCfig := SocialSecurity{}
 		pathT := config.Get(path).(*toml.Tree)
 		keys := pathT.Keys()
 		if categoryMatch(path, keys) { // FIXME TODO maybe this should be a leaf check instead
@@ -392,16 +396,16 @@ func getTomlSocialSecurity(config *toml.Tree, path string) *socialSecurity {
 				switch v {
 				case "amount":
 					if config.Has(lPath) {
-						ssCfig.amount = int(getInt64Value(lPathobj))
+						ssCfig.Amount = int(getInt64Value(lPathobj))
 						continue
 					}
-					ssCfig.amount = -1
+					ssCfig.Amount = -1
 				case "age":
 					if config.Has(lPath) {
-						ssCfig.age = lPathobj.(string)
+						ssCfig.Age = lPathobj.(string)
 						continue
 					}
-					ssCfig.age = ""
+					ssCfig.Age = ""
 				}
 			}
 		} else {
@@ -413,11 +417,11 @@ func getTomlSocialSecurity(config *toml.Tree, path string) *socialSecurity {
 	return nil
 }
 
-func getTomlSocialSecurityMap(config *toml.Tree, path string) *map[string]socialSecurity {
+func getTomlSocialSecurityMap(config *toml.Tree, path string) *map[string]SocialSecurity {
 	pathT := config.Get(path).(*toml.Tree)
 	keys := pathT.Keys()
 	//fmt.Printf("\npath: %s tree keys: %#v\n", path, keys)
-	m := make(map[string]socialSecurity)
+	m := make(map[string]SocialSecurity)
 	if categoryMatch(path, keys) { // FIXME TODO maybe this should be a leaf check instead
 		m["nokey"] = *getTomlSocialSecurity(config, path)
 		return &m
@@ -446,35 +450,35 @@ func getTomlIRA(config *toml.Tree, path string) *IRA {
 				switch v {
 				case "bal":
 					if config.Has(lPath) {
-						iraCfig.bal = int(getInt64Value(lPathobj))
+						iraCfig.Bal = int(getInt64Value(lPathobj))
 						continue
 					}
-					iraCfig.bal = -1
+					iraCfig.Bal = -1
 				case "rate":
 					if config.Has(lPath) {
-						iraCfig.rate = getFloat64Value(lPathobj)
+						iraCfig.Rate = getFloat64Value(lPathobj)
 						continue
 					}
-					iraCfig.rate = -1
+					iraCfig.Rate = -1
 				case "contrib":
 					if config.Has(lPath) {
-						iraCfig.contrib = int(getInt64Value(lPathobj))
+						iraCfig.Contrib = int(getInt64Value(lPathobj))
 						continue
 					}
-					iraCfig.contrib = -1
+					iraCfig.Contrib = -1
 				case "inflation":
 					if config.Has(lPath) {
-						iraCfig.inflation = lPathobj.(bool)
+						iraCfig.Inflation = lPathobj.(bool)
 						continue
 					}
-					iraCfig.inflation = true
+					iraCfig.Inflation = true
 					//TODO FIXME setting default bool to TRUE IS THIS WHAT IT SHOULD BE???
 				case "period":
 					if config.Has(lPath) {
-						iraCfig.period = lPathobj.(string)
+						iraCfig.Period = lPathobj.(string)
 						continue
 					}
-					iraCfig.period = ""
+					iraCfig.Period = ""
 				}
 			}
 		} else {
@@ -501,10 +505,10 @@ func getTomlIRAMap(config *toml.Tree, path string) *map[string]IRA {
 	return &m
 }
 
-func getTomlRoth(config *toml.Tree, path string) *roth {
+func getTomlRoth(config *toml.Tree, path string) *Roth {
 
 	if config.Has(path) {
-		rothCfig := roth{}
+		rothCfig := Roth{}
 		pathT := config.Get(path).(*toml.Tree)
 		keys := pathT.Keys()
 		if categoryMatch(path, keys) { // FIXME TODO maybe this should be a leaf check instead
@@ -514,35 +518,35 @@ func getTomlRoth(config *toml.Tree, path string) *roth {
 				switch v {
 				case "bal":
 					if config.Has(lPath) {
-						rothCfig.bal = int(getInt64Value(lPathobj))
+						rothCfig.Bal = int(getInt64Value(lPathobj))
 						continue
 					}
-					rothCfig.bal = -1
+					rothCfig.Bal = -1
 				case "rate":
 					if config.Has(lPath) {
-						rothCfig.rate = getFloat64Value(lPathobj)
+						rothCfig.Rate = getFloat64Value(lPathobj)
 						continue
 					}
-					rothCfig.rate = -1
+					rothCfig.Rate = -1
 				case "contrib":
 					if config.Has(lPath) {
-						rothCfig.contrib = int(getInt64Value(lPathobj))
+						rothCfig.Contrib = int(getInt64Value(lPathobj))
 						continue
 					}
-					rothCfig.contrib = -1
+					rothCfig.Contrib = -1
 				case "inflation":
 					if config.Has(lPath) {
-						rothCfig.inflation = lPathobj.(bool)
+						rothCfig.Inflation = lPathobj.(bool)
 						continue
 					}
-					rothCfig.inflation = true
+					rothCfig.Inflation = true
 					//TODO FIXME setting default bool to TRUE IS THIS WHAT IT SHOULD BE???
 				case "period":
 					if config.Has(lPath) {
-						rothCfig.period = lPathobj.(string)
+						rothCfig.Period = lPathobj.(string)
 						continue
 					}
-					rothCfig.period = ""
+					rothCfig.Period = ""
 				}
 			}
 		} else {
@@ -554,10 +558,10 @@ func getTomlRoth(config *toml.Tree, path string) *roth {
 	return nil
 }
 
-func getTomlRothMap(config *toml.Tree, path string) *map[string]roth {
+func getTomlRothMap(config *toml.Tree, path string) *map[string]Roth {
 	pathT := config.Get(path).(*toml.Tree)
 	keys := pathT.Keys()
-	m := make(map[string]roth)
+	m := make(map[string]Roth)
 	if categoryMatch(path, keys) { // FIXME TODO maybe this should be a leaf check instead
 		m["nokey"] = *getTomlRoth(config, path)
 		return &m
@@ -569,10 +573,10 @@ func getTomlRothMap(config *toml.Tree, path string) *map[string]roth {
 	return &m
 }
 
-func getTomlIncome(config *toml.Tree, path string) *income {
+func getTomlIncome(config *toml.Tree, path string) *Income {
 
 	if config.Has(path) {
-		iCfig := income{}
+		iCfig := Income{}
 		pathT := config.Get(path).(*toml.Tree)
 		keys := pathT.Keys()
 		if categoryMatch(path, keys) { // FIXME TODO maybe this should be a leaf check instead
@@ -583,30 +587,30 @@ func getTomlIncome(config *toml.Tree, path string) *income {
 				switch v {
 				case "amount":
 					if config.Has(lPath) {
-						iCfig.amount = int(getInt64Value(lPathobj))
+						iCfig.Amount = int(getInt64Value(lPathobj))
 						continue
 					}
-					iCfig.amount = -1
+					iCfig.Amount = -1
 				case "inflation":
 					if config.Has(lPath) {
-						iCfig.inflation = lPathobj.(bool)
+						iCfig.Inflation = lPathobj.(bool)
 						continue
 					}
-					iCfig.inflation = true
+					iCfig.Inflation = true
 					//TODO FIXME setting default bool to TRUE IS THIS WHAT IT SHOULD BE???
 				case "tax":
 					if config.Has(lPath) {
-						iCfig.tax = lPathobj.(bool)
+						iCfig.Tax = lPathobj.(bool)
 						continue
 					}
-					iCfig.tax = true
+					iCfig.Tax = true
 					//TODO FIXME setting default bool to TRUE IS THIS WHAT IT SHOULD BE???
 				case "age":
 					if config.Has(lPath) {
-						iCfig.age = lPathobj.(string)
+						iCfig.Age = lPathobj.(string)
 						continue
 					}
-					iCfig.age = ""
+					iCfig.Age = ""
 				}
 			}
 		} else {
@@ -618,10 +622,10 @@ func getTomlIncome(config *toml.Tree, path string) *income {
 	return nil
 }
 
-func getTomlIncomeMap(config *toml.Tree, path string) *map[string]income {
+func getTomlIncomeMap(config *toml.Tree, path string) *map[string]Income {
 	pathT := config.Get(path).(*toml.Tree)
 	keys := pathT.Keys()
-	m := make(map[string]income)
+	m := make(map[string]Income)
 	if categoryMatch(path, keys) { // FIXME TODO maybe this should be a leaf check instead
 		m["nokey"] = *getTomlIncome(config, path)
 		return &m
@@ -633,10 +637,10 @@ func getTomlIncomeMap(config *toml.Tree, path string) *map[string]income {
 	return &m
 }
 
-func getTomlExpense(config *toml.Tree, path string) *expense {
+func getTomlExpense(config *toml.Tree, path string) *Expense {
 
 	if config.Has(path) {
-		eCfig := expense{}
+		eCfig := Expense{}
 		pathT := config.Get(path).(*toml.Tree)
 		keys := pathT.Keys()
 		if categoryMatch(path, keys) { // FIXME TODO maybe this should be a leaf check instead
@@ -647,23 +651,23 @@ func getTomlExpense(config *toml.Tree, path string) *expense {
 				switch v {
 				case "amount":
 					if config.Has(lPath) {
-						eCfig.amount = int(getInt64Value(lPathobj))
+						eCfig.Amount = int(getInt64Value(lPathobj))
 						continue
 					}
-					eCfig.amount = -1
+					eCfig.Amount = -1
 				case "inflation":
 					if config.Has(lPath) {
-						eCfig.inflation = lPathobj.(bool)
+						eCfig.Inflation = lPathobj.(bool)
 						continue
 					}
-					eCfig.inflation = true
+					eCfig.Inflation = true
 					//TODO FIXME setting default bool to TRUE IS THIS WHAT IT SHOULD BE???
 				case "age":
 					if config.Has(lPath) {
-						eCfig.age = lPathobj.(string)
+						eCfig.Age = lPathobj.(string)
 						continue
 					}
-					eCfig.age = ""
+					eCfig.Age = ""
 				}
 			}
 		} else {
@@ -675,10 +679,10 @@ func getTomlExpense(config *toml.Tree, path string) *expense {
 	return nil
 }
 
-func getTomlExpenseMap(config *toml.Tree, path string) *map[string]expense {
+func getTomlExpenseMap(config *toml.Tree, path string) *map[string]Expense {
 	pathT := config.Get(path).(*toml.Tree)
 	keys := pathT.Keys()
-	m := make(map[string]expense)
+	m := make(map[string]Expense)
 	if categoryMatch(path, keys) { // FIXME TODO maybe this should be a leaf check instead
 		m["nokey"] = *getTomlExpense(config, path)
 		return &m
@@ -690,10 +694,10 @@ func getTomlExpenseMap(config *toml.Tree, path string) *map[string]expense {
 	return &m
 }
 
-func getTomlAsset(config *toml.Tree, path string) *asset {
+func getTomlAsset(config *toml.Tree, path string) *Asset {
 
 	if config.Has(path) {
-		eCfig := asset{}
+		eCfig := Asset{}
 		pathT := config.Get(path).(*toml.Tree)
 		keys := pathT.Keys()
 		if categoryMatch(path, keys) { // FIXME TODO maybe this should be a leaf check instead
@@ -704,48 +708,48 @@ func getTomlAsset(config *toml.Tree, path string) *asset {
 				switch v {
 				case "value":
 					if config.Has(lPath) {
-						eCfig.value = int(getInt64Value(lPathobj))
+						eCfig.Value = int(getInt64Value(lPathobj))
 						continue
 					}
-					eCfig.value = -1
+					eCfig.Value = -1
 				case "primaryResidence":
 					if config.Has(lPath) {
-						eCfig.primaryResidence = lPathobj.(bool)
+						eCfig.PrimaryResidence = lPathobj.(bool)
 						continue
 					}
-					eCfig.primaryResidence = false
+					eCfig.PrimaryResidence = false
 					//TODO FIXME setting default bool to false IS THIS WHAT IT SHOULD BE???
 				case "costAndImprovements":
 					if config.Has(lPath) {
-						eCfig.costAndImprovements = int(getInt64Value(lPathobj))
+						eCfig.CostAndImprovements = int(getInt64Value(lPathobj))
 						continue
 					}
-					eCfig.costAndImprovements = -1
+					eCfig.CostAndImprovements = -1
 				case "ageToSell":
 					if config.Has(lPath) {
-						eCfig.ageToSell = int(getInt64Value(lPathobj))
+						eCfig.AgeToSell = int(getInt64Value(lPathobj))
 						continue
 					}
-					eCfig.ageToSell = -1
+					eCfig.AgeToSell = -1
 				case "owedAtAgeToSell":
 					if config.Has(lPath) {
-						eCfig.owedAtAgeToSell = int(getInt64Value(lPathobj))
+						eCfig.OwedAtAgeToSell = int(getInt64Value(lPathobj))
 						continue
 					}
-					eCfig.owedAtAgeToSell = -1
+					eCfig.OwedAtAgeToSell = -1
 				case "rate":
 					if config.Has(lPath) {
-						eCfig.rate = getFloat64Value(lPathobj)
+						eCfig.Rate = getFloat64Value(lPathobj)
 						continue
 					}
-					eCfig.rate = -1
+					eCfig.Rate = -1
 				//var assetKeys = []string{"value", "costAndImprovements", "ageToSell", "owedAtAgeToSell", "primaryResidence", "rate", "broderageRate"}
 				case "brokerageRate":
 					if config.Has(lPath) {
-						eCfig.brokerageRate = getFloat64Value(lPathobj)
+						eCfig.BrokerageRate = getFloat64Value(lPathobj)
 						continue
 					}
-					eCfig.brokerageRate = -1
+					eCfig.BrokerageRate = -1
 				}
 			}
 		} else {
@@ -757,10 +761,10 @@ func getTomlAsset(config *toml.Tree, path string) *asset {
 	return nil
 }
 
-func getTomlAssetMap(config *toml.Tree, path string) *map[string]asset {
+func getTomlAssetMap(config *toml.Tree, path string) *map[string]Asset {
 	pathT := config.Get(path).(*toml.Tree)
 	keys := pathT.Keys()
-	m := make(map[string]asset)
+	m := make(map[string]Asset)
 	if categoryMatch(path, keys) { // FIXME TODO maybe this should be a leaf check instead
 		m["nokey"] = *getTomlAsset(config, path)
 		return &m
