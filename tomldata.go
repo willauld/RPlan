@@ -198,37 +198,37 @@ var TomlStrDefs = []string{ // each entry corresponds to InputStrDefs entries
 	"roth.%1.period#1", //contribStartAge,
 	"roth.%0.period#2", //contribEndAge,
 	"roth.%1.period#2", // contribEndAge,
-	"aftatax.bal",
-	"aftatax.rate",
-	"aftatax.contrib",
-	"aftatax.period#1", //contribStartAge, // need to extract from range
-	"aftatax.period#2", //contribEndAge,
+	"aftertax.bal",
+	"aftertax.rate",
+	"aftertax.contrib",
+	"aftertax.period#1", //contribStartAge, // need to extract from range
+	"aftertax.period#2", //contribEndAge,
 
-	"eT_iRatePercent",
-	"eT_rRatePercent",
-	"eT_maximize",
+	"inflation",
+	"returns",
+	"maximize",
 }
 var TomlStreamStrDefs = []string{ // each entry corresponds to InputStreamStrDefs entries
-	"eT_Income",
-	"eT_IncomeAmount",
-	"eT_IncomeStartAge",
-	"eT_IncomeEndAge",
-	"eT_IncomeInflate",
-	"eT_IncomeTax",
-	"eT_Expense",
-	"eT_ExpenseAmount",
-	"eT_ExpenseStartAge",
-	"eT_ExpenseEndAge",
-	"eT_ExpenseInflate",
-	"eT_ExpenseTax",
-	"eT_Asset",
-	"eT_AssetValue",
-	"eT_AssetAgeToSell",
-	"eT_AssetCostAndImprovements",
-	"eT_AssetOwedAtAgeToSell",
-	"eT_AssetPrimaryResidence",
-	"eT_AssetRRatePercent",
-	"eT_AssetBrokeragePercent",
+	"@income",
+	"income.%i.amount",
+	"income.%i.age#1",
+	"income.%i.age#2",
+	"income.%i.inflation",
+	"income.%i.tax",
+	"@expense",
+	"expense.%i.amount",
+	"expense.%i.age#1",
+	"expense.%i.age#2",
+	"expense.%i.inflation",
+	"expense.%i.tax",
+	"@asset",
+	"asset.%i.value",
+	"asset.%i.ageToSell",
+	"asset.%i.costAndImprovements",
+	"asset.%i.owedAtAgeToSell",
+	"asset.%i.primaryResidence",
+	"asset.%i.rate",
+	"asset.%i.brokerageRate",
 }
 
 func doItWithUnMarshal() {
@@ -1100,7 +1100,18 @@ func getPathStrValue(path string, config *toml.Tree) string {
 	return s
 }
 
-//err = setStringMapValue(&ipsm, "eT_rRatePercent", "returns", config)
+func setStringMapValueWithValue(ipsm *map[string]string,
+	s string, val string) error {
+	fmt.Printf("Set %s to %s\n", s, val)
+	_, ok := (*ipsm)[s]
+	if !ok {
+		e := fmt.Errorf("setStringMapValue: attempt to set a non-existant parameter: %s", s)
+		return e
+	}
+	(*ipsm)[s] = val
+	return nil
+}
+
 func setStringMapValue(ipsm *map[string]string,
 	s string, path string, config *toml.Tree) error {
 	fmt.Printf("Attempting to set %s\n", s)
@@ -1109,12 +1120,26 @@ func setStringMapValue(ipsm *map[string]string,
 		e := fmt.Errorf("setStringMapValue: attempt to set a non-existant parameter: %s", s)
 		return e
 	}
-	(*ipsm)[s] = ""
+	//(*ipsm)[s] = ""
 	fmt.Printf("checking path: %s\n", path)
+	Hval := -1
+	indxH := strings.Index(path, "#")
+	if indxH >= 0 {
+		Hval = int(path[indxH+1] - '0')
+		path = path[:indxH]
+		fmt.Printf("now checking path: %s\n", path)
+	}
 	if config.Has(path) {
 		v := getPathStrValue(path, config)
 		fmt.Printf("DOES HAVE and it is: %s\n", v)
+		if Hval > 0 {
+			svals := strings.Split(v, "-")
+			v = svals[Hval-1]
+			fmt.Printf("DOES HAVE and will use: %s\n", v)
+		}
 		(*ipsm)[s] = v
+	} else {
+		fmt.Printf("DOES not have: %s\n", path)
 	}
 	return nil
 }
@@ -1164,17 +1189,22 @@ func getInputStringsMapFromToml(filename string) map[string]string {
 	fmt.Printf("Expense names: %#v\n", expenseNames)
 
 	//
-	// Now we can work our way though setting values in InputStingMap
+	// Now we can work our way though setting values in InputStrDefs
 	//
 	for i, k := range TomlStrDefs {
-		/*
-			if i > 10 {
-				break
+		if k[0] == '@' {
+			// All keys used in TomlStrDefs are iam keys (names)
+			indx := int(k[len(k)-1] - '0')
+			n := iamNames[indx-1]
+			err = setStringMapValueWithValue(&ipsm,
+				rplanlib.InputStrDefs[i], n)
+			if err != nil {
+				fmt.Printf("getInputStringsMapFromToml: %s\n", err)
 			}
-		*/
-		if k[0] != '@' {
-			indx := strings.Index(k, "%")
-			if indx < 0 {
+			continue
+		} else {
+			indxP := strings.Index(k, "%")
+			if indxP < 0 {
 				err = setStringMapValue(&ipsm,
 					rplanlib.InputStrDefs[i], k, config)
 				if err != nil {
@@ -1182,7 +1212,7 @@ func getInputStringsMapFromToml(filename string) map[string]string {
 				}
 				continue
 			}
-			val := k[indx+1] - '0'
+			val := k[indxP+1] - '0'
 			fmt.Printf("Index val is %d\n", val)
 			var p string
 			fmt.Printf("*** iamNames[%d]: %s\n", val, iamNames[val])
@@ -1206,9 +1236,75 @@ func getInputStringsMapFromToml(filename string) map[string]string {
 			continue
 		}
 	}
-	err = setStringMapValue(&ipsm, "eT_rRatePercent", "returns", config)
-	if err != nil {
-		fmt.Printf("getInputStringsMapFromToml: %s\n", err)
+	//
+	// Now we can work our way though setting values in InputStreamStrDefs
+	//
+	var names []string
+	for j := 1; j < rplanlib.MaxStreams+1; j++ {
+		for i, k := range TomlStreamStrDefs {
+			fmt.Printf("InputStrDefs[%d]: '%s', TomlStreamStrDefs[%d]: '%s'\n", i, rplanlib.InputStreamStrDefs[i], i, k)
+			targetStr := fmt.Sprintf("%s%d", rplanlib.InputStreamStrDefs[i], j)
+			if k[0] == '@' {
+				switch k[1:] {
+				case "income":
+					names = incomeNames
+				case "expense":
+					names = expenseNames
+				case "asset":
+					names = assetNames
+				default:
+					fmt.Printf("EEEEEError 232323\n")
+				}
+				if len(names) < j {
+					continue
+				}
+				n := names[j-1]
+				err = setStringMapValueWithValue(&ipsm, targetStr, n)
+				if err != nil {
+					fmt.Printf("getInputStringsMapFromToml: %s\n", err)
+				}
+				continue
+			} else { // TODO should not need else with the above continue
+				indxP := strings.Index(k, "%")
+				if indxP < 0 {
+					err = setStringMapValue(&ipsm, targetStr, k, config)
+					if err != nil {
+						fmt.Printf("getInputStringsMapFromToml: %s\n", err)
+					}
+					continue
+				}
+				strs := strings.Split(k, ".")
+				switch strs[0] {
+				case "income":
+					names = incomeNames
+				case "expense":
+					names = expenseNames
+				case "asset":
+					names = assetNames
+				default:
+					fmt.Printf("EEEEEError 8989\n")
+				}
+				if len(names) < j {
+					continue
+				}
+				n := names[j-1]
+				var p string
+				fmt.Printf("*** names[%d]: %s\n", j-1, n)
+				if n != "nokey" {
+					p = strings.Replace(k, "%i", n, 1)
+				} else {
+					p = strs[0] + "." + strs[2]
+					fmt.Printf("have nokey using: %s\n", p)
+				}
+				fmt.Printf("Will use path: %s\n", p)
+
+				err = setStringMapValue(&ipsm, targetStr, p, config)
+				if err != nil {
+					fmt.Printf("getInputStringsMapFromToml: %s\n", err)
+				}
+				continue
+			}
+		}
 	}
 
 	return ipsm
