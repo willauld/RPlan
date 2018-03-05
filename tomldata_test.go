@@ -8,7 +8,7 @@ import (
 )
 
 func TestDoItWithUnMarshal(t *testing.T) {
-	doItWithUnMarshal()
+	//doItWithUnMarshal()
 }
 
 func TestGetTomlData(t *testing.T) {
@@ -25,13 +25,13 @@ func TestGetTomlData(t *testing.T) {
 	for i, elem := range tests {
 		fmt.Printf("------ Case %d -----------\n", i)
 		//goGetTomlData()
-		ms := getInputStringsMapFromToml(elem.toml)
-		if ms == nil {
-			t.Errorf("TestGetTomlData case %d: ms is nil", i)
+		ms, err := getInputStringsMapFromToml(elem.toml)
+		if err != nil {
+			t.Errorf("TestGetTomlData case %d: ms is nil: %s", i, err)
 			continue
 		}
 		for _, v := range rplanlib.InputStrDefs {
-			r, ok := ms[v]
+			r, ok := (*ms)[v]
 			if !ok {
 				t.Errorf("TestGetTomlData case %d: missing ms[%s]", i, v)
 			}
@@ -41,7 +41,7 @@ func TestGetTomlData(t *testing.T) {
 		}
 		for x := 1; x < rplanlib.MaxStreams+1; x++ {
 			for _, v := range rplanlib.InputStreamStrDefs {
-				r, ok := ms[fmt.Sprintf("%s%d", v, x)]
+				r, ok := (*ms)[fmt.Sprintf("%s%d", v, x)]
 				if !ok {
 					t.Errorf("TestGetTomlData case %d: missing ms[%s]", i, v)
 				}
