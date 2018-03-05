@@ -151,12 +151,15 @@ var categoryKeys = []string{ //Top level key with global keys replace by single 
 	"expense",
 }
 
+// TomlStrDefs works with InputStrDefs to Map Toml information to
+// rplanlib API static portion
 //
-// List of toml paths to information.
+// List of toml paths to user supplied information.
 // Includes editing codes for correcting as needed at runtime.
 // '@' means the corresponding key in InputStrDefs should be used to set
 //		iam key names
 // '%n' means the nth iam key name is to be substituted here
+// '%i' means the current stream key name is to be substituted here
 // '#n' means that the resulting string is a range string and the nth
 //		number from the range should be extracted and used for assignment
 // After converting the toml paths there should not be any of these codes
@@ -208,6 +211,9 @@ var TomlStrDefs = []string{ // each entry corresponds to InputStrDefs entries
 	"returns",
 	"maximize",
 }
+
+// TomlStreamStrDefs works with InputStreamStrDefs to Map Toml information to
+// rplanlib API dynamic portion (per stream portion)
 var TomlStreamStrDefs = []string{ // each entry corresponds to InputStreamStrDefs entries
 	"@income",
 	"income.%i.amount",
@@ -1306,80 +1312,6 @@ func getInputStringsMapFromToml(filename string) map[string]string {
 			}
 		}
 	}
-
-	return ipsm
-	// old start
-	/*
-		setStringMapValue(&ipsm, "setName", gc.Title, "title", config)
-		err = setStringMapValue(&ipsm, "filingStatus", gc.RetirementType, "retirement_type", config)
-		if err != nil {
-			fmt.Printf("getInputStringsMapFromToml: %s\n", err)
-		}
-		err = setStringMapValue(&ipsm, "eT_rRatePercent", fmt.Sprintf("%.2f", gc.Returns), "returns", config)
-		if err != nil {
-			fmt.Printf("getInputStringsMapFromToml: %s\n", err)
-		}
-		err = setStringMapValue(&ipsm, "eT_iRatePercent", fmt.Sprintf("%.2f", gc.Inflation), "inflation", config)
-		if err != nil {
-			fmt.Printf("getInputStringsMapFromToml: %s\n", err)
-		}
-		err = setStringMapValue(&ipsm, "eT_maximize", gc.Maximize, "maximize", config)
-		if err != nil {
-			fmt.Printf("getInputStringsMapFromToml: %s\n", err)
-		}
-		var lkey1, lkey2 string
-		path := "iam"
-		pathT := config.Get(path).(*toml.Tree)
-		keys := pathT.Keys()
-		fmt.Printf("\npath: %s tree keys: %#v\n", path, keys)
-		lkey1 = "nokey"
-		lkey2 = ""
-		if !categoryMatch(path, keys) { // FIXME TODO maybe this should be a leaf check instead
-			// These should be the unknown 'name' values
-			if len(keys) > 2 {
-				//Can only have one or two
-				fmt.Printf("TOO MANY IAM NAMES: %#v\n", keys)
-			}
-			//Need to find the order from within ie which one if Primary
-			prime := -1
-			for i, v := range keys {
-				lPath := path + "." + v + "." + "primary"
-				if config.Has(lPath) {
-					lPathobj := config.Get(lPath)
-					p := lPathobj.(bool)
-					if p == true {
-						if prime < 0 {
-							prime = i
-						} else {
-							// ERRor Only one can be prime
-						}
-					}
-				}
-			}
-			if prime < 0 {
-				// Error At least one must be prime
-			}
-			lkey1 = keys[prime]
-			lkey2 = keys[1]
-			if prime == 1 {
-				lkey2 = keys[0]
-			}
-		}
-		err = setStringMapValue(&ipsm, "key1", lkey1, "", config)
-		if err != nil {
-			fmt.Printf("getInputStringsMapFromToml: %s\n", err)
-		}
-		err = setStringMapValue(&ipsm, "key2", lkey2, "", config)
-		if err != nil {
-			fmt.Printf("getInputStringsMapFromToml: %s\n", err)
-		}
-	*/
-	/*
-		for _, v := range iamKeys {
-			lPath := path + "." + v
-			lPathobj := config.Get(lPath)
-		}
-	*/
 	return ipsm
 }
 
