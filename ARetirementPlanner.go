@@ -183,6 +183,12 @@ func commandLineFlagWasSet(flag string) bool {
 	return false
 }
 
+func help() {
+	fmt.Printf("Usage: %s [options]* configfile\n", filepath.Base(os.Args[0]))
+	pflag.PrintDefaults()
+	os.Exit(0)
+}
+
 func main() {
 	tests := []struct {
 		ip    map[string]string
@@ -350,29 +356,34 @@ func main() {
 	pflag.Parse()
 
 	if *helpPtr {
-		fmt.Printf("Usage: %s [options]* configfile\n", filepath.Base(os.Args[0]))
-		pflag.PrintDefaults()
-		os.Exit(0)
+		help()
 	}
 
 	if *versionPtr == true {
 		//__version__ = '0.3-rc2'
-		fmt.Printf("\t%s: Version %d.%d-%s\n", os.Args[0], version.major, version.minor, version.str)
+		fmt.Printf("\t%s: Version %d.%d-%s\n", filepath.Base(os.Args[0]), version.major, version.minor, version.str)
 		os.Exit(0)
 	}
 
-	if pflag.NArg() > 0 {
-		fmt.Printf("pflag.NArg: %d\n", pflag.NArg())
-		fmt.Printf("Args: %v\n", pflag.Args())
-		fmt.Printf("USE THIS FOR THE CONFIG FILE\n")
+	if pflag.NArg() < 1 {
+		fmt.Printf("Error: Missing configation file name\n")
+		help()
+	}
+	if pflag.NArg() > 1 {
+		fmt.Printf("Error: Too many arguments for configation file name (%s)\n", pflag.Args())
+		help()
 	}
 
-	//=-=-=-=-
-	//S = tomldata.Data(taxinfo)
-	//S.load_toml_file(args.conffile)
-	//S.process_toml_info()
+	var tomlfile string
+	tomlfile = pflag.Arg(0)
 
+	ipsmp, err := getInputStringsMapFromToml(tomlfile)
+	if err != nil {
+		fmt.Printf("Error: No information returned from toml file: %s", err)
+		os.Exit(-1)
+	}
 	elem := tests[0]
+	elem.ip = *ipsmp
 
 	ip, err := rplanlib.NewInputParams(elem.ip)
 	if err != nil {
@@ -380,6 +391,7 @@ func main() {
 		os.Exit(1)
 	}
 	//fmt.Printf("InputParams: %#v\n", ip)
+	//os.Exit(0)
 	ti := rplanlib.NewTaxInfo(ip.FilingStatus)
 	taxbins := len(*ti.Taxtable)
 	cgbins := len(*ti.Capgainstable)
