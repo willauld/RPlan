@@ -9,7 +9,6 @@ import (
 	"github.com/willauld/rplanlib"
 )
 
-
 func TestGetTomlData(t *testing.T) {
 	tests := []struct {
 		toml []byte
@@ -240,6 +239,7 @@ inflation = true  # Will the contribution rise with inflation?
 				"eT_TDRA_ContribStartAge2":         "",
 				"eT_TDRA_ContribEndAge1":           "",
 				"eT_TDRA_ContribEndAge2":           "",
+				"eT_TDRA_ContribInflate1":          "true",
 				"dollarsInThousands":               "false",
 			},
 		},
@@ -270,6 +270,7 @@ inflation = true  # Will the contribution rise with inflation?
 				"eT_Aftatax_Contrib":               "",
 				"eT_Aftatax_ContribStartAge":       "",
 				"eT_Aftatax_ContribEndAge":         "",
+				"eT_Aftatax_ContribInflate":        "true",
 				"dollarsInThousands":               "false",
 			},
 		},
@@ -531,6 +532,8 @@ period = '63-67'   # period you will be making the contributions
 				"eT_TDRA_ContribStartAge2":   "63",
 				"eT_TDRA_ContribEndAge1":     "",
 				"eT_TDRA_ContribEndAge2":     "64",
+				"eT_TDRA_ContribInflate1":    "true",
+				"eT_TDRA_ContribInflate2":    "true",
 				"eT_Roth1":                   "5000",
 				"eT_Roth2":                   "20000", //20k
 				"eT_Roth_Rate1":              "",
@@ -546,6 +549,7 @@ period = '63-67'   # period you will be making the contributions
 				"eT_Aftatax_Contrib":         "10000", //10K
 				"eT_Aftatax_ContribStartAge": "63",
 				"eT_Aftatax_ContribEndAge":   "67",
+				"eT_Aftatax_ContribInflate":  "true",
 
 				"eT_iRatePercent":    "2.5",
 				"eT_rRatePercent":    "6",

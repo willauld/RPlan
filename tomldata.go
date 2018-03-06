@@ -78,6 +78,8 @@ var TomlStrDefs = []string{ // each entry corresponds to InputStrDefs entries
 	"IRA.%1.period#1", //ContribStartAge2,
 	"IRA.%0.period#2", //ContribEndAge1,
 	"IRA.%1.period#2", //ContribEndAge2,
+	"IRA.%0.inflation",
+	"IRA.%1.inflation",
 	"roth.%0.bal",
 	"roth.%1.bal",
 	"roth.%0.rate",
@@ -88,11 +90,18 @@ var TomlStrDefs = []string{ // each entry corresponds to InputStrDefs entries
 	"roth.%1.period#1", //contribStartAge2,
 	"roth.%0.period#2", //contribEndAge1,
 	"roth.%1.period#2", // contribEndAge2
+	"roth.%0.inflation",
+	"roth.%1.inflation",
 	"aftertax.bal",
+	"aftertax.basis",
 	"aftertax.rate",
 	"aftertax.contrib",
 	"aftertax.period#1", //contribStartAge
 	"aftertax.period#2", //contribEndAge,
+	"aftertax.inflation",
+
+	"desired.income",
+	"max.income",
 
 	"inflation",
 	"returns",
