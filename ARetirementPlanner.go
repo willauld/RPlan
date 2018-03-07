@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/fatih/structs"
 	"github.com/spf13/pflag"
 	//pflag "flag"
 
@@ -181,6 +182,36 @@ func commandLineFlagWasSet(flag string) bool {
 	// command line did NOT set this flag
 	fmt.Printf("command line did NOT set flag: %s\n", flag)
 	return false
+}
+
+func printInputParams(ip *rplanlib.InputParams) {
+	fmt.Printf("InputParams:\n")
+	m := structs.Map(ip)
+	i := 0
+	for k, v := range m {
+		if v != "" {
+			fmt.Printf("%3d::'%30s': '%#v'\n", i, k, v)
+		}
+		i++
+	}
+}
+
+func printInputParamsStrMap(m map[string]string) {
+	fmt.Printf("InputParamsStrMap:\n")
+	for i, v := range rplanlib.InputStrDefs {
+		if m[v] != "" {
+			fmt.Printf("%3d::'%30s': '%s'\n", i, v, m[v])
+		}
+	}
+	for j := 1; j < rplanlib.MaxStreams+1; j++ {
+		for i, v := range rplanlib.InputStreamStrDefs {
+			lineno := i + len(rplanlib.InputStrDefs)
+			k := fmt.Sprintf("%s%d", v, j)
+			if m[k] != "" {
+				fmt.Printf("%3d::'%30s': '%s'\n", lineno, k, m[k])
+			}
+		}
+	}
 }
 
 func help() {
@@ -385,11 +416,15 @@ func main() {
 	elem := tests[0]
 	elem.ip = *ipsmp
 
+	printInputParamsStrMap(*ipsmp)
+
 	ip, err := rplanlib.NewInputParams(elem.ip)
 	if err != nil {
 		fmt.Printf("ARetirementPlanner: %s\n", err)
 		os.Exit(1)
 	}
+	printInputParams(ip)
+
 	//fmt.Printf("InputParams: %#v\n", ip)
 	//os.Exit(0)
 	ti := rplanlib.NewTaxInfo(ip.FilingStatus)
