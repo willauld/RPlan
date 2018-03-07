@@ -609,6 +609,84 @@ period = '63-67'   # period you will be making the contributions
 				"eT_AssetBrokeragePercent2":    "",
 			},
 		},
+		{ // Case 12
+			toml: []byte(`
+[iam]  # iam (for each) is required in some joint cases (".xxx" use to match accounts IRA/roth)
+primary = true  # retiree to have age listed first in the output (must choose one)
+age = 54        # your current age
+retire = 65     # age you plan to retire
+through = 75    # age you want to plan through
+definedContributionPlan = "54-65"
+[IRA]
+bal = 200_000       # current balance 
+rate = 7.25        # defaults to global rate set above
+#contrib = 0        # Annual contribution you will make for period (below)
+inflation = true  # Will the contribution rise with inflation?
+#period = '56-60'   # period you will be making the contributions
+[max.income]
+amount = 100_000
+				`),
+			ipsm: map[string]string{
+				"key1":                             "nokey",
+				"eT_Age1":                          "54",
+				"eT_RetireAge1":                    "65",
+				"eT_PlanThroughAge1":               "75",
+				"eT_DefinedContributionPlanStart1": "54",
+				"eT_DefinedContributionPlanEnd1":   "65",
+				"eT_TDRA1":                         "200000", // 200k
+				"eT_TDRA2":                         "",
+				"eT_TDRA_Rate1":                    "7.25",
+				"eT_TDRA_Rate2":                    "",
+				"eT_TDRA_Contrib1":                 "",
+				"eT_TDRA_Contrib2":                 "",
+				"eT_TDRA_ContribStartAge1":         "",
+				"eT_TDRA_ContribStartAge2":         "",
+				"eT_TDRA_ContribEndAge1":           "",
+				"eT_TDRA_ContribEndAge2":           "",
+				"eT_TDRA_ContribInflate1":          "true",
+				"eT_MaxIncome":                     "100000",
+				"dollarsInThousands":               "false",
+			},
+		},
+		{ // Case 13
+			toml: []byte(`
+[iam]  # iam (for each) is required in some joint cases (".xxx" use to match accounts IRA/roth)
+primary = true  # retiree to have age listed first in the output (must choose one)
+age = 54        # your current age
+retire = 65     # age you plan to retire
+through = 75    # age you want to plan through
+definedContributionPlan = "54-65"
+[IRA]
+bal = 200_000       # current balance 
+rate = 7.25        # defaults to global rate set above
+#contrib = 0        # Annual contribution you will make for period (below)
+inflation = true  # Will the contribution rise with inflation?
+#period = '56-60'   # period you will be making the contributions
+[min.income]
+amount = 100_000
+				`),
+			ipsm: map[string]string{
+				"key1":                             "nokey",
+				"eT_Age1":                          "54",
+				"eT_RetireAge1":                    "65",
+				"eT_PlanThroughAge1":               "75",
+				"eT_DefinedContributionPlanStart1": "54",
+				"eT_DefinedContributionPlanEnd1":   "65",
+				"eT_TDRA1":                         "200000", // 200k
+				"eT_TDRA2":                         "",
+				"eT_TDRA_Rate1":                    "7.25",
+				"eT_TDRA_Rate2":                    "",
+				"eT_TDRA_Contrib1":                 "",
+				"eT_TDRA_Contrib2":                 "",
+				"eT_TDRA_ContribStartAge1":         "",
+				"eT_TDRA_ContribStartAge2":         "",
+				"eT_TDRA_ContribEndAge1":           "",
+				"eT_TDRA_ContribEndAge2":           "",
+				"eT_TDRA_ContribInflate1":          "true",
+				"eT_DesiredIncome":                 "100000",
+				"dollarsInThousands":               "false",
+			},
+		},
 	}
 	onlyOnce := 0
 	for i, elem := range tests {

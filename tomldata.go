@@ -34,6 +34,12 @@ var rothReqKeys = iRAReqKeys
 var aftertaxKeys = []string{"bal", "basis", "rate", "contrib", "inflation", "period"}
 var aftertaxReqKeys = iRAReqKeys
 
+var minKeys = []string{"amount"}
+var minReqKeys = minKeys
+
+var maxKeys = minKeys
+var maxReqKeys = minKeys
+
 // TomlStrDefs works with InputStrDefs to Map Toml information to
 // rplanlib API static portion
 //
@@ -100,8 +106,8 @@ var TomlStrDefs = []string{ // each entry corresponds to InputStrDefs entries
 	"aftertax.period#2", //contribEndAge,
 	"aftertax.inflation",
 
-	"desired.income",
-	"max.income",
+	"min.income.amount",
+	"max.income.amount",
 
 	"inflation",
 	"returns",
@@ -181,6 +187,12 @@ func categoryMatchAndUnknowns(parent string, keys []string) (bool, []string) {
 	case "expense":
 		reqKeys = expenseReqKeys
 		akeys = expenseKeys
+	case "min":
+		reqKeys = minReqKeys
+		akeys = minKeys
+	case "max":
+		reqKeys = maxReqKeys
+		akeys = maxKeys
 	}
 	for _, k := range reqKeys {
 		if !keyIn(k, keys) {
@@ -273,8 +285,6 @@ func getKeys(path string, config *toml.Tree) []string {
 	return []string{}
 }
 
-//TODO FIXME THINKABOUTTHIS
-// don't pass in the value from struct but rather use path to get value from toml Tree
 func getPathStrValue(path string, config *toml.Tree) string {
 	var targetVal interface{}
 	obj := config.Get(path)
@@ -329,9 +339,9 @@ func setStringMapValue(ipsm *map[string]string,
 			//fmt.Printf("DOES HAVE and will use: %s\n", v)
 		}
 		(*ipsm)[s] = v
-	} // else {
-	//	fmt.Printf("DOES not have: %s\n", path)
-	//}
+	} /*else {
+		fmt.Printf("DOES not have: %s\n", path)
+	}*/
 	return nil
 }
 
