@@ -166,7 +166,7 @@ def verifyInputs( c , A , b ):
             print("ErrZeroColumn -- column[%d] %s\n"% (j, vindx.varstr(j)))
     print("\nZero Rows: %d, Zero Columns: %d\n"%(zeroRows, zeroColumns))
 */
-
+/*
 // This is not strickly needed Now that I am using pflag.lookup to set a default
 // ToDo: think about removing,
 func commandLineFlagWasSet(flag string) bool {
@@ -183,6 +183,7 @@ func commandLineFlagWasSet(flag string) bool {
 	fmt.Printf("command line did NOT set flag: %s\n", flag)
 	return false
 }
+*/
 
 func printInputParams(ip *rplanlib.InputParams) {
 	fmt.Printf("InputParams:\n")
@@ -198,20 +199,24 @@ func printInputParams(ip *rplanlib.InputParams) {
 
 func printInputParamsStrMap(m map[string]string) {
 	fmt.Printf("InputParamsStrMap:\n")
-	for i, v := range rplanlib.InputStrDefs {
+	fmt.Printf("ip: map[string]string{\n")
+	for _, v := range rplanlib.InputStrDefs {
 		if m[v] != "" {
-			fmt.Printf("%3d::'%30s': '%s'\n", i, v, m[v])
+			//fmt.Printf("%3d::'%30s': '%s'\n", i, v, m[v])
+			fmt.Printf("\"%s\": \"%s\",\n", v, m[v])
 		}
 	}
 	for j := 1; j < rplanlib.MaxStreams+1; j++ {
-		for i, v := range rplanlib.InputStreamStrDefs {
-			lineno := i + len(rplanlib.InputStrDefs)
+		for _, v := range rplanlib.InputStreamStrDefs {
+			//lineno := i + len(rplanlib.InputStrDefs)
 			k := fmt.Sprintf("%s%d", v, j)
 			if m[k] != "" {
-				fmt.Printf("%3d::'%30s': '%s'\n", lineno, k, m[k])
+				//fmt.Printf("%3d::'%30s': '%s'\n", lineno, k, m[k])
+				fmt.Printf("\"%s\": \"%s\",\n", k, m[k])
 			}
 		}
 	}
+	fmt.Printf("},\n")
 }
 
 func help() {
@@ -438,7 +443,8 @@ func main() {
 	}
 
 	logfile := os.Stdout
-	if commandLineFlagWasSet("logfile") {
+	//if commandLineFlagWasSet("logfile")
+	if *logfilePtr != "" {
 		logfile, err = os.Create(*logfilePtr)
 		if err != nil {
 			fmt.Printf("ARetirementPlanner: %s\n", err)
@@ -447,7 +453,8 @@ func main() {
 	}
 
 	csvfile := (*os.File)(nil)
-	if commandLineFlagWasSet("csv") {
+	//if commandLineFlagWasSet("csv")
+	if *csvPtr != "" {
 		csvfile, err = os.Create(*csvPtr)
 		if err != nil {
 			fmt.Printf("ARetirementPlanner: %s\n", err)
@@ -468,12 +475,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	if commandLineFlagWasSet("loadbinary") {
-		//fmt.Printf("ModelSpecs: %#v\n", ms)
-		if *loadBinaryPtr != "" {
-			// this not only would need to load a model but vindx... to work correctly. maybe should not be here ... think about it
-		}
+	//if commandLineFlagWasSet("loadbinary")
+	//fmt.Printf("ModelSpecs: %#v\n", ms)
+	if *loadBinaryPtr != "" {
+		// this not only would need to load a model but vindx... to work correctly. maybe should not be here ... think about it
 	}
+	//}
 
 	c, a, b, notes := ms.BuildModel()
 
@@ -502,7 +509,8 @@ func main() {
 		ms.PrintModelMatrix(c, a, b, notes, slack, bindingOnly)
 	}
 
-	if commandLineFlagWasSet("dumpbinary") {
+	//if commandLineFlagWasSet("dumpbinary")
+	if *dumpBinaryPtr != "" {
 		err = rplanlib.BinDumpModel(c, a, b, res.X, *dumpBinaryPtr)
 		if err != nil {
 			fmt.Printf("ARetirementPlanner: %s\n", err)
