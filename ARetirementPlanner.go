@@ -421,14 +421,14 @@ func main() {
 	elem := tests[0]
 	elem.ip = *ipsmp
 
-	printInputParamsStrMap(*ipsmp)
+	//printInputParamsStrMap(*ipsmp)
 
 	ip, err := rplanlib.NewInputParams(elem.ip)
 	if err != nil {
 		fmt.Printf("ARetirementPlanner: %s\n", err)
 		os.Exit(1)
 	}
-	printInputParams(ip)
+	//printInputParams(ip)
 
 	//fmt.Printf("InputParams: %#v\n", ip)
 	//os.Exit(0)
