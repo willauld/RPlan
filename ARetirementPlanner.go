@@ -220,7 +220,7 @@ func printInputParamsStrMap(m map[string]string) {
 }
 
 func help() {
-	fmt.Printf("Usage: %s [options]* configfile\n", filepath.Base(os.Args[0]))
+	fmt.Printf("\nUsage: %s [options]* configfile\n", filepath.Base(os.Args[0]))
 	pflag.PrintDefaults()
 	os.Exit(0)
 }
@@ -511,7 +511,15 @@ func main() {
 
 	//if commandLineFlagWasSet("dumpbinary")
 	if *dumpBinaryPtr != "" {
-		err = rplanlib.BinDumpModel(c, a, b, res.X, *dumpBinaryPtr)
+		vid := &[]int32{
+			int32(ip.Numyr),
+			int32(taxbins),
+			int32(cgbins),
+			int32(ip.Accmap["IRA"]),
+			int32(ip.Accmap["roth"]),
+			int32(ip.Accmap["aftertax"]),
+		}
+		err = rplanlib.BinDumpModel(c, a, b, res.X, vid, *dumpBinaryPtr)
 		if err != nil {
 			fmt.Printf("ARetirementPlanner: %s\n", err)
 			os.Exit(1)
