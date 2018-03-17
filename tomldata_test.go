@@ -687,6 +687,33 @@ amount = 100_000
 				"dollarsInThousands":               "false",
 			},
 		},
+		{ // Case 14
+			toml: []byte(`
+title = "activeParams"
+retirement_type = 'joint'
+maximize = "PlusEstate"
+[iam.joe]
+age = 54
+retire = 65
+through = 75
+
+[IRA.joe]
+bal = 200_000
+				`),
+			ipsm: map[string]string{
+				"setName":            "activeParams",
+				"filingStatus":       "joint",
+				"key1":               "joe",
+				"eT_Age1":            "54",
+				"eT_RetireAge1":      "65",
+				"eT_PlanThroughAge1": "75",
+				"eT_TDRA1":           "200000", // 200k
+				"eT_maximize":        "PlusEstate",
+				"dollarsInThousands": "false",
+
+				//"eT_maximize":        "PlusEstate",
+			},
+		},
 	}
 	onlyOnce := 0
 	for i, elem := range tests {
