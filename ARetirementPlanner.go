@@ -336,6 +336,9 @@ func main() {
 	VerbosePtr := pflag.BoolP("verbose", "v", false,
 		"Extra output from solver")
 
+	AllPlanTablesPtr := pflag.BoolP("allplantables", "A", false,
+		"Display all plan tables, equivalent to -aitb")
+
 	AccountTransPtr := pflag.BoolP("accountTrans", "a", false,
 		"Display the account transaction table")
 
@@ -528,26 +531,31 @@ func main() {
 	}
 
 	//fmt.Printf("Res: %#v\n", res)
-	str := fmt.Sprintf("Message: %v\n", res.Message)
-	fmt.Printf(str)
+	if *VerbosePtr && false {
+		str := fmt.Sprintf("Message: %v\n", res.Message)
+		fmt.Printf(str)
+		fmt.Printf("\n")
+		fmt.Printf("Num Vars:        %d\n", len(a[0]))
+		fmt.Printf("Num Constraints: %d\n", len(a))
+		//fmt.Printf("Called LPSimplex() for m:%d x n:%d model\n", len(a), len(a[0]))
+		fmt.Printf("res.Success: %v\n", res.Success)
+	}
 	if *timePtr {
-		str = fmt.Sprintf("Time: LPSimplex() took %s\n", elapsed)
+		str := fmt.Sprintf("\nTime: LPSimplex() took %s\n", elapsed)
 		fmt.Printf(str)
 	}
-	fmt.Printf("Called LPSimplex() for m:%d x n:%d model\n", len(a), len(a[0]))
-	fmt.Printf("res.Success: %v\n", res.Success)
 	if res.Success {
 		ms.PrintActivitySummary(&res.X)
-		if *IncomePtr {
+		if *IncomePtr || *AllPlanTablesPtr {
 			ms.PrintIncomeExpenseDetails()
 		}
-		if *AccountTransPtr {
+		if *AccountTransPtr || *AllPlanTablesPtr {
 			ms.PrintAccountTrans(&res.X)
 		}
-		if *TaxPtr {
+		if *TaxPtr || *AllPlanTablesPtr {
 			ms.PrintTax(&res.X)
 		}
-		if *TaxBracketPtr {
+		if *TaxBracketPtr || *AllPlanTablesPtr {
 			ms.PrintTaxBrackets(&res.X)
 			ms.PrintCapGainsBrackets(&res.X)
 		}
