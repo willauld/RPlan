@@ -199,24 +199,24 @@ func printInputParams(ip *rplanlib.InputParams) {
 
 func printInputParamsStrMap(m map[string]string) {
 	fmt.Printf("InputParamsStrMap:\n")
-	fmt.Printf("ip: map[string]string{\n")
-	for _, v := range rplanlib.InputStrDefs {
+	//fmt.Printf("ip: map[string]string{\n")
+	for i, v := range rplanlib.InputStrDefs {
 		if m[v] != "" {
-			//fmt.Printf("%3d::'%30s': '%s'\n", i, v, m[v])
-			fmt.Printf("\"%s\": \"%s\",\n", v, m[v])
+			fmt.Printf("%3d::'%30s': '%s'\n", i, v, m[v])
+			//fmt.Printf("\"%s\": \"%s\",\n", v, m[v])
 		}
 	}
 	for j := 1; j < rplanlib.MaxStreams+1; j++ {
-		for _, v := range rplanlib.InputStreamStrDefs {
-			//lineno := i + len(rplanlib.InputStrDefs)
+		for i, v := range rplanlib.InputStreamStrDefs {
+			lineno := i + len(rplanlib.InputStrDefs)
 			k := fmt.Sprintf("%s%d", v, j)
 			if m[k] != "" {
-				//fmt.Printf("%3d::'%30s': '%s'\n", lineno, k, m[k])
-				fmt.Printf("\"%s\": \"%s\",\n", k, m[k])
+				fmt.Printf("%3d::'%30s': '%s'\n", lineno, k, m[k])
+				//fmt.Printf("\"%s\": \"%s\",\n", k, m[k])
 			}
 		}
 	}
-	fmt.Printf("},\n")
+	//fmt.Printf("},\n")
 }
 
 func help() {
@@ -382,6 +382,9 @@ func main() {
 	depositsPtr := pflag.BoolP("allowdeposits", "z", false,
 		"Allow optomizer create deposits beyond those explicity specified")
 
+	InputStrStrMapPtr := pflag.BoolP("inputstringmap", "M", false,
+		"Display Input string map (key, value) for all input parameters")
+
 	versionPtr := pflag.BoolP("version", "V", false,
 		"Display the program version number and exit")
 
@@ -418,13 +421,15 @@ func main() {
 
 	ipsmp, err := getInputStringsMapFromToml(tomlfile)
 	if err != nil {
-		fmt.Printf("Error: No information returned from toml file: %s", err)
-		os.Exit(-1)
+		fmt.Printf("Error reading toml file: %s\n", err)
+		os.Exit(0)
 	}
 	elem := tests[0]
 	elem.ip = *ipsmp
 
-	//printInputParamsStrMap(*ipsmp)
+	if *InputStrStrMapPtr {
+		printInputParamsStrMap(*ipsmp)
+	}
 
 	ip, err := rplanlib.NewInputParams(elem.ip)
 	if err != nil {
@@ -446,7 +451,6 @@ func main() {
 	}
 
 	logfile := os.Stdout
-	//if commandLineFlagWasSet("logfile")
 	if *logfilePtr != "" {
 		logfile, err = os.Create(*logfilePtr)
 		if err != nil {
@@ -456,7 +460,6 @@ func main() {
 	}
 
 	csvfile := (*os.File)(nil)
-	//if commandLineFlagWasSet("csv")
 	if *csvPtr != "" {
 		csvfile, err = os.Create(*csvPtr)
 		if err != nil {

@@ -211,7 +211,7 @@ func categoryMatchAndUnknowns(parent string, keys []string) (bool, []string) {
 func checkNames(golden []string, toevaluate []string) error {
 	// toevaluate should be a subset of golden (possibly empty)
 	if len(golden) < len(toevaluate) {
-		e := fmt.Errorf("checkNames: golden names are (%v) which cannot include all of (%v)", golden, toevaluate)
+		e := fmt.Errorf("checkNames: defined names are (%v) which does not include all of (%v)", golden, toevaluate)
 		return e
 	}
 	for _, v := range toevaluate {
@@ -364,21 +364,21 @@ func getInputStringsMapFromToml(filename string) (*map[string]string, error) {
 	//fmt.Printf("SS names: %#v\n", ssNames)
 	err = checkNames(iamNames, ssNames)
 	if err != nil {
-		e := fmt.Errorf("getInputStringMapFromToml: %s", err)
+		e := fmt.Errorf("getInputStringMapFromToml: %s, missing identifiers must be defined in 'iam' section", err)
 		return nil, e
 	}
 	iRANames := getKeys("IRA", config)
 	//fmt.Printf("IRA names: %#v\n", iRANames)
 	err = checkNames(iamNames, iRANames)
 	if err != nil {
-		e := fmt.Errorf("getInputStringMapFromToml: %s", err)
+		e := fmt.Errorf("getInputStringMapFromToml: %s, missing identifiers must be defined in 'iam' section", err)
 		return nil, e
 	}
 	rothNames := getKeys("roth", config)
 	//fmt.Printf("roth names: %#v\n", rothNames)
 	err = checkNames(iamNames, rothNames)
 	if err != nil {
-		e := fmt.Errorf("getInputStringMapFromToml: %s", err)
+		e := fmt.Errorf("getInputStringMapFromToml: %s, missing identifiers must be defined in 'iam' section", err)
 		return nil, e
 	}
 	//aftertaxNames := getKeys("aftertax", config)
