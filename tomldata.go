@@ -3,6 +3,7 @@ package main
 //import "github.com/pelletier/go-toml"
 import (
 	"fmt"
+	"os"
 	"reflect"
 	"strings"
 
@@ -245,6 +246,7 @@ func getKeys(path string, config *toml.Tree) []string {
 				if L > 2 {
 					//Can only have one or two
 					fmt.Printf("TOO MANY IAM NAMES: %#v\n", keys)
+					os.Exit(0)
 				}
 				if L == 1 {
 					return keys
@@ -264,12 +266,14 @@ func getKeys(path string, config *toml.Tree) []string {
 								prime = i
 							} else {
 								fmt.Printf("Error Only one 'iam' can be prime\n")
+								os.Exit(0)
 							}
 						}
 					}
 				}
 				if prime < 0 {
 					fmt.Printf("Error At least one 'iam' must be prime\n")
+					os.Exit(0)
 				}
 				//lkey[0] = keys[prime]
 				//lkey[1] = keys[1]
@@ -353,6 +357,8 @@ func getInputStringsMapFromToml(filename string) (*map[string]string, error) {
 	}
 
 	ipsm := rplanlib.NewInputStringsMap()
+
+	// Need to ensure that ONE iam is primary if there are two
 
 	//
 	// Get all the unknown keys first
