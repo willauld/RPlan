@@ -521,9 +521,9 @@ func main() {
 			int32(ip.Numyr),
 			int32(taxbins),
 			int32(cgbins),
-			int32(ip.Accmap["IRA"]),
-			int32(ip.Accmap["roth"]),
-			int32(ip.Accmap["aftertax"]),
+			int32(ip.Accmap[rplanlib.IRA]),
+			int32(ip.Accmap[rplanlib.Roth]),
+			int32(ip.Accmap[rplanlib.Aftertax]),
 		}
 		err = rplanlib.BinDumpModel(c, a, b, res.X, vid, *dumpBinaryPtr)
 		if err != nil {
