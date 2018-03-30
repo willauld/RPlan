@@ -226,111 +226,6 @@ func help() {
 }
 
 func main() {
-	tests := []struct {
-		ip    map[string]string
-		iRate float64
-	}{
-		{ // Case 0 // case to match mobile.toml
-			ip: map[string]string{
-				"setName":                    "activeParams",
-				"filingStatus":               "joint",
-				"key1":                       "retiree1",
-				"key2":                       "retiree2",
-				"eT_Age1":                    "54",
-				"eT_Age2":                    "54",
-				"eT_RetireAge1":              "65",
-				"eT_RetireAge2":              "65",
-				"eT_PlanThroughAge1":         "75",
-				"eT_PlanThroughAge2":         "75",
-				"eT_PIA1":                    "20", //20K
-				"eT_PIA2":                    "-1",
-				"eT_SS_Start1":               "70",
-				"eT_SS_Start2":               "70",
-				"eT_TDRA1":                   "200", // 200k
-				"eT_TDRA2":                   "",
-				"eT_TDRA_Rate1":              "",
-				"eT_TDRA_Rate2":              "",
-				"eT_TDRA_Contrib1":           "",
-				"eT_TDRA_Contrib2":           "5", // contribute 5k per year
-				"eT_TDRA_ContribStartAge1":   "",
-				"eT_TDRA_ContribStartAge2":   "63",
-				"eT_TDRA_ContribEndAge1":     "",
-				"eT_TDRA_ContribEndAge2":     "64",
-				"eT_Roth1":                   "5",
-				"eT_Roth2":                   "20", //20k
-				"eT_Roth_Rate1":              "",
-				"eT_Roth_Rate2":              "",
-				"eT_Roth_Contrib1":           "",
-				"eT_Roth_Contrib2":           "",
-				"eT_Roth_ContribStartAge1":   "",
-				"eT_Roth_ContribStartAge2":   "",
-				"eT_Roth_ContribEndAge1":     "",
-				"eT_Roth_ContribEndAge2":     "",
-				"eT_Aftatax":                 "60", //60k
-				"eT_Aftatax_Rate":            "",
-				"eT_Aftatax_Contrib":         "10", //10K
-				"eT_Aftatax_ContribStartAge": "63",
-				"eT_Aftatax_ContribEndAge":   "67",
-
-				"eT_iRatePercent": "2.5",
-				"eT_rRatePercent": "6",
-				"eT_maximize":     "Spending", // or "PlusEstate"
-
-				//prototype entries below
-				"eT_Income1":         "rental1",
-				"eT_IncomeAmount1":   "1",
-				"eT_IncomeStartAge1": "63",
-				"eT_IncomeEndAge1":   "67",
-				"eT_IncomeInflate1":  "true",
-				"eT_IncomeTax1":      "true",
-
-				//prototype entries below
-				"eT_Income2":         "rental2",
-				"eT_IncomeAmount2":   "2",
-				"eT_IncomeStartAge2": "62",
-				"eT_IncomeEndAge2":   "70",
-				"eT_IncomeInflate2":  "false",
-				"eT_IncomeTax2":      "true",
-
-				//prototype entries below
-				"eT_Expense1":         "exp1",
-				"eT_ExpenseAmount1":   "1",
-				"eT_ExpenseStartAge1": "63",
-				"eT_ExpenseEndAge1":   "67",
-				"eT_ExpenseInflate1":  "true",
-				"eT_ExpenseTax1":      "true", //ignored, or should be
-
-				//prototype entries below
-				"eT_Expense2":         "exp2",
-				"eT_ExpenseAmount2":   "2",
-				"eT_ExpenseStartAge2": "62",
-				"eT_ExpenseEndAge2":   "70",
-				"eT_ExpenseInflate2":  "false",
-				"eT_ExpenseTax2":      "true", //ignored, or should be
-
-				//prototype entries below
-				"eT_Asset1":                    "ass1",
-				"eT_AssetValue1":               "100",
-				"eT_AssetAgeToSell1":           "73",
-				"eT_AssetCostAndImprovements1": "20",
-				"eT_AssetOwedAtAgeToSell1":     "10",
-				"eT_AssetPrimaryResidence1":    "True",
-				"eT_AssetRRatePercent1":        "4",
-				"eT_AssetBrokeragePercent1":    "4",
-
-				//prototype entries below
-				"eT_Asset2":                    "ass2",
-				"eT_AssetValue2":               "100",
-				"eT_AssetAgeToSell2":           "73",
-				"eT_AssetCostAndImprovements2": "20",
-				"eT_AssetOwedAtAgeToSell2":     "10",
-				"eT_AssetPrimaryResidence2":    "false",
-				"eT_AssetRRatePercent2":        "6", // python defaults to global rate
-				"eT_AssetBrokeragePercent2":    "",
-			},
-			iRate: 1.025,
-		},
-	}
 
 	//parser = argparse.ArgumentParser(description='Create an optimized finacial plan for retirement.')
 	VerbosePtr := pflag.BoolP("verbose", "v", false,
@@ -391,10 +286,6 @@ func main() {
 	helpPtr := pflag.BoolP("help", "h", false,
 		"Displays this help message and exit")
 
-	/*
-	   parser.add_argument('conffile', help='Require configuration input toml file')
-	*/
-
 	pflag.Parse()
 
 	if *helpPtr {
@@ -424,14 +315,12 @@ func main() {
 		fmt.Printf("Error reading toml file: %s\n", err)
 		os.Exit(0)
 	}
-	elem := tests[0]
-	elem.ip = *ipsmp
 
 	if *InputStrStrMapPtr {
 		printInputParamsStrMap(*ipsmp)
 	}
 
-	ip, err := rplanlib.NewInputParams(elem.ip)
+	ip, err := rplanlib.NewInputParams(*ipsmp)
 	if err != nil {
 		fmt.Printf("ARetirementPlanner: %s\n", err)
 		os.Exit(1)
