@@ -216,6 +216,7 @@ func printInputParamsStrMap(m map[string]string) {
 			}
 		}
 	}
+	fmt.Printf("\n")
 	//fmt.Printf("},\n")
 }
 
@@ -307,6 +308,8 @@ func main() {
 		help()
 	}
 
+	msgList := rplanlib.NewWarnErrorList()
+
 	var tomlfile string
 	tomlfile = pflag.Arg(0)
 
@@ -364,11 +367,19 @@ func main() {
 
 	// TODO looks like verbosePTR does nothing - investigate
 	ms, err := rplanlib.NewModelSpecs(vindx, ti, *ip, *VerbosePtr,
-		*depositsPtr, RoundToOneK, os.Stderr, logfile, csvfile, logfile)
+		*depositsPtr, RoundToOneK, os.Stderr, logfile, csvfile, logfile, msgList)
 	if err != nil {
 		fmt.Printf("ARetirementPlanner: %s\n", err)
 		os.Exit(1)
 	}
+	wc := msgList.GetWarningCount()
+	if wc > 0 {
+		fmt.Printf("%d Warning(s) found:\n", wc)
+		for i := 0; i < wc; i++ {
+			fmt.Printf("%s\n", msgList.GetWarning(i))
+		}
+	}
+	msgList.ClearWarnings()
 
 	//if commandLineFlagWasSet("loadbinary")
 	//fmt.Printf("ModelSpecs: %#v\n", ms)
