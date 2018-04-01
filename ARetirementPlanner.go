@@ -323,7 +323,7 @@ func main() {
 		printInputParamsStrMap(*ipsmp)
 	}
 
-	ip, err := rplanlib.NewInputParams(*ipsmp)
+	ip, err := rplanlib.NewInputParams(*ipsmp, msgList)
 	if err != nil {
 		fmt.Printf("ARetirementPlanner: %s\n", err)
 		os.Exit(1)
