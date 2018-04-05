@@ -366,20 +366,12 @@ func main() {
 	}
 
 	// TODO looks like verbosePTR does nothing - investigate
-	ms, err := rplanlib.NewModelSpecs(vindx, ti, *ip, *VerbosePtr,
-		*depositsPtr, RoundToOneK, os.Stderr, logfile, csvfile, logfile, msgList)
+	ms, err := rplanlib.NewModelSpecs(vindx, ti, *ip, *depositsPtr,
+		RoundToOneK, os.Stderr, logfile, csvfile, logfile, msgList)
 	if err != nil {
 		fmt.Printf("ARetirementPlanner: %s\n", err)
 		os.Exit(1)
 	}
-	wc := msgList.GetWarningCount()
-	if wc > 0 {
-		fmt.Printf("%d Warning(s) found:\n", wc)
-		for i := 0; i < wc; i++ {
-			fmt.Printf("%s\n", msgList.GetWarning(i))
-		}
-	}
-	msgList.ClearWarnings()
 
 	//if commandLineFlagWasSet("loadbinary")
 	//fmt.Printf("ModelSpecs: %#v\n", ms)
@@ -398,7 +390,7 @@ func main() {
 	callback := lpsimplex.Callbackfunc(nil)
 	//callback := lpsimplex.LPSimplexVerboseCallback
 	//callback := lpsimplex.LPSimplexTerseCallback
-	disp := *VerbosePtr //true // false //true
+	disp := false //*VerbosePtr //true // false //true
 	start := time.Now()
 	res := lpsimplex.LPSimplex(c, a, b, nil, nil, nil, callback, disp, maxiter, tol, bland)
 	elapsed := time.Since(start)
@@ -433,14 +425,20 @@ func main() {
 		// rplanlib.BinCheckModelFiles("./RPlanModelgo.datX", "./RPlanModelpython.datX", &vindx)
 	}
 
+	wc := msgList.GetWarningCount()
+	if wc > 0 {
+		fmt.Printf("%d Warning(s) found:\n", wc)
+		for i := 0; i < wc; i++ {
+			fmt.Printf("%s\n", msgList.GetWarning(i))
+		}
+	}
+	msgList.ClearWarnings()
+
 	//fmt.Printf("Res: %#v\n", res)
-	if *VerbosePtr && false {
-		str := fmt.Sprintf("Message: %v\n", res.Message)
-		fmt.Printf(str)
-		fmt.Printf("\n")
+
+	if *VerbosePtr /*&& false*/ {
 		fmt.Printf("Num Vars:        %d\n", len(a[0]))
 		fmt.Printf("Num Constraints: %d\n", len(a))
-		//fmt.Printf("Called LPSimplex() for m:%d x n:%d model\n", len(a), len(a[0]))
 		fmt.Printf("res.Success: %v\n", res.Success)
 	}
 	if *timePtr {
@@ -463,6 +461,13 @@ func main() {
 			ms.PrintCapGainsBrackets(&res.X)
 		}
 		ms.PrintBaseConfig(&res.X)
+	} else {
+		str := fmt.Sprintf("LP Simplex Message: %v\n", res.Message)
+		fmt.Printf(str)
+		fmt.Printf("\n")
+		if ip.Min > 0 && ip.Maximize == rplanlib.PlusEstate {
+			fmt.Printf("A possible cause when using [min.income] can be that the amount is more than can be supported by the assets over the plan period. Try lowering the amount if this may be the problem.")
+		}
 	}
 	//createDefX(&res.X)
 	//=-=-=-=-
