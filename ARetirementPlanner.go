@@ -226,6 +226,29 @@ func help() {
 	os.Exit(0)
 }
 
+func printMsgAndExit(msgList *rplanlib.WarnErrorList) {
+	/* FIXME TODO
+	ec := msgList.GetErrorCount()
+	if ec > 0 {
+		fmt.Printf("%d Error(s) found:\n", ec)
+		for i := 0; i < ec; i++ {
+			fmt.Printf("%s\n", msgList.GetError(i))
+		}
+	}
+	msgList.ClearErrors()
+	*/
+
+	wc := msgList.GetWarningCount()
+	if wc > 0 {
+		fmt.Printf("%d Warning(s) found:\n", wc)
+		for i := 0; i < wc; i++ {
+			fmt.Printf("%s\n", msgList.GetWarning(i))
+		}
+	}
+	msgList.ClearWarnings()
+	os.Exit(0)
+}
+
 func main() {
 
 	//parser = argparse.ArgumentParser(description='Create an optimized finacial plan for retirement.')
@@ -316,7 +339,7 @@ func main() {
 	ipsmp, err := getInputStringsMapFromToml(tomlfile)
 	if err != nil {
 		fmt.Printf("Error reading toml file: %s\n", err)
-		os.Exit(0)
+		printMsgAndExit(msgList)
 	}
 
 	if *InputStrStrMapPtr {
@@ -326,7 +349,7 @@ func main() {
 	ip, err := rplanlib.NewInputParams(*ipsmp, msgList)
 	if err != nil {
 		fmt.Printf("ARetirementPlanner: %s\n", err)
-		os.Exit(1)
+		printMsgAndExit(msgList)
 	}
 	//printInputParams(ip)
 
@@ -339,7 +362,7 @@ func main() {
 		cgbins, ip.Accmap, os.Stdout)
 	if err != nil {
 		fmt.Printf("ARetirementPlanner: %s\n", err)
-		os.Exit(1)
+		printMsgAndExit(msgList)
 	}
 
 	logfile := os.Stdout
@@ -370,7 +393,7 @@ func main() {
 		RoundToOneK, os.Stderr, logfile, csvfile, logfile, msgList)
 	if err != nil {
 		fmt.Printf("ARetirementPlanner: %s\n", err)
-		os.Exit(1)
+		printMsgAndExit(msgList)
 	}
 
 	//if commandLineFlagWasSet("loadbinary")
@@ -420,10 +443,20 @@ func main() {
 		err = rplanlib.BinDumpModel(c, a, b, res.X, vid, *dumpBinaryPtr)
 		if err != nil {
 			fmt.Printf("ARetirementPlanner: %s\n", err)
-			os.Exit(1)
+			printMsgAndExit(msgList)
 		}
 		// rplanlib.BinCheckModelFiles("./RPlanModelgo.datX", "./RPlanModelpython.datX", &vindx)
 	}
+
+	ec := msgList.GetErrorCount()
+	if ec > 1 {
+		// first error should be delivered directly as and error so start with the second.
+		fmt.Printf("%d Error(s) found:\n", ec)
+		for i := 1; i < ec; i++ {
+			fmt.Printf("%s\n", msgList.GetError(i))
+		}
+	}
+	msgList.ClearErrors()
 
 	wc := msgList.GetWarningCount()
 	if wc > 0 {
