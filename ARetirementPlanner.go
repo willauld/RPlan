@@ -356,7 +356,7 @@ func main() {
 
 	ipsmp, err := getInputStringsMapFromToml(tomlfile)
 	if err != nil {
-		e := fmt.Errorf("Error reading toml file: %s\n", err)
+		e := fmt.Errorf("Error: reading toml file: %s\n", err)
 		printMsgAndExit(msgList, e)
 	}
 
@@ -366,7 +366,6 @@ func main() {
 
 	ip, err := rplanlib.NewInputParams(*ipsmp, msgList)
 	if err != nil {
-		//fmt.Printf("ARetirementPlanner: %s\n", err)
 		printMsgAndExit(msgList, err)
 	}
 	//printInputParams(ip)
@@ -379,7 +378,6 @@ func main() {
 	vindx, err := rplanlib.NewVectorVarIndex(ip.Numyr, taxbins,
 		cgbins, ip.Accmap, os.Stdout)
 	if err != nil {
-		//fmt.Printf("ARetirementPlanner: %s\n", err)
 		printMsgAndExit(msgList, err)
 	}
 
@@ -410,7 +408,6 @@ func main() {
 	ms, err := rplanlib.NewModelSpecs(vindx, ti, *ip, *depositsPtr,
 		RoundToOneK, os.Stderr, logfile, csvfile, logfile, msgList)
 	if err != nil {
-		//fmt.Printf("ARetirementPlanner: %s\n", err)
 		printMsgAndExit(msgList, err)
 	}
 
@@ -460,33 +457,13 @@ func main() {
 		}
 		err = rplanlib.BinDumpModel(c, a, b, res.X, vid, *dumpBinaryPtr)
 		if err != nil {
-			//fmt.Printf("ARetirementPlanner: %s\n", err)
 			printMsgAndExit(msgList, err)
 		}
 		// rplanlib.BinCheckModelFiles("./RPlanModelgo.datX", "./RPlanModelpython.datX", &vindx)
 	}
 
+	// Print all Error and Warning Messages
 	printMsg(msgList)
-	/*
-		ec := msgList.GetErrorCount()
-		if ec > 1 {
-			// first error should be delivered directly as and error so start with the second.
-			fmt.Printf("%d Error(s) found:\n", ec)
-			for i := 1; i < ec; i++ {
-				fmt.Printf("%s\n", msgList.GetError(i))
-			}
-		}
-		msgList.ClearErrors()
-
-		wc := msgList.GetWarningCount()
-		if wc > 0 {
-			fmt.Printf("%d Warning(s) found:\n", wc)
-			for i := 0; i < wc; i++ {
-				fmt.Printf("%s\n", msgList.GetWarning(i))
-			}
-		}
-		msgList.ClearWarnings()
-	*/
 
 	//fmt.Printf("Res: %#v\n", res)
 
