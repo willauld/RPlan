@@ -197,6 +197,24 @@ func printInputParams(ip *rplanlib.InputParams) {
 	}
 }
 
+// List all keys from input string string map
+func listInputParamsStrMap() {
+	fmt.Printf("InputParamsStrMap Keys:\n")
+	for i, v := range rplanlib.InputStrDefs {
+		fmt.Printf("%3d::'%s'\n", i, v)
+	}
+	for j := 1; j < rplanlib.MaxStreams+1; j++ {
+		for i, v := range rplanlib.InputStreamStrDefs {
+			lineno := i + len(rplanlib.InputStrDefs) +
+				(j-1)*len(rplanlib.InputStreamStrDefs)
+			k := fmt.Sprintf("%s%d", v, j)
+			fmt.Printf("%3d::'%s'\n", lineno, k)
+		}
+	}
+	fmt.Printf("\n")
+}
+
+// print out the active input string string map
 func printInputParamsStrMap(m map[string]string) {
 	fmt.Printf("InputParamsStrMap:\n")
 	//fmt.Printf("ip: map[string]string{\n")
@@ -208,7 +226,8 @@ func printInputParamsStrMap(m map[string]string) {
 	}
 	for j := 1; j < rplanlib.MaxStreams+1; j++ {
 		for i, v := range rplanlib.InputStreamStrDefs {
-			lineno := i + len(rplanlib.InputStrDefs)
+			lineno := i + len(rplanlib.InputStrDefs) +
+				(j-1)*len(rplanlib.InputStreamStrDefs)
 			k := fmt.Sprintf("%s%d", v, j)
 			if m[k] != "" {
 				fmt.Printf("%3d::'%30s': '%s'\n", lineno, k, m[k])
@@ -322,6 +341,9 @@ func main() {
 	InputStrStrMapPtr := pflag.BoolP("inputstringmap", "M", false,
 		"Display Input string map (key, value) for all input parameters")
 
+	InputStrStrMapKeysPtr := pflag.BoolP("inputstringmapkeys", "K", false,
+		"Display Input string map keys for all possible input parameters")
+
 	versionPtr := pflag.BoolP("version", "V", false,
 		"Display the program version number and exit")
 
@@ -329,6 +351,10 @@ func main() {
 		"Displays this help message and exit")
 
 	pflag.Parse()
+
+	if *InputStrStrMapKeysPtr {
+		listInputParamsStrMap()
+	}
 
 	if *helpPtr {
 		help()
