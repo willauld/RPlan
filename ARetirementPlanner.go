@@ -336,7 +336,7 @@ func main() {
 		"Do not round results output to thousands")
 
 	depositsPtr := pflag.BoolP("allowdeposits", "z", false,
-		"Allow optomizer create deposits beyond those explicity specified")
+		"Allow optomizer to create deposits beyond those explicity specified")
 
 	InputStrStrMapPtr := pflag.BoolP("inputstringmap", "M", false,
 		"Display Input string map (key, value) for all input parameters")
