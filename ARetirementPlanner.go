@@ -6,9 +6,11 @@ package main
 //
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/fatih/structs"
@@ -185,13 +187,74 @@ func commandLineFlagWasSet(flag string) bool {
 }
 */
 
+func getInputStrStrMapFromFile(f string) (*map[string]string, error) {
+	file, err := os.Open(f)
+	if err != nil {
+		e := fmt.Errorf("Error: %s", err)
+		return nil, e
+	}
+	defer file.Close()
+
+	ipsm := rplanlib.NewInputStringsMap()
+
+	scanner := bufio.NewScanner(file)
+
+	// Default scanner is bufio.ScanLines. Lets use ScanWords.
+	// Could also use a custom function of SplitFunc type
+	//scanner.Split(bufio.ScanWords)
+
+	var key, val string
+	// Scan for next token.
+	for scanner.Scan() {
+		line := scanner.Text()
+		fmt.Printf("Line: %s\n", line)
+		tokens := strings.SplitAfter(line, "'")
+		first := true
+		havePair := false
+		for _, token := range tokens {
+			if strings.Index(token, ":") != -1 {
+				continue
+			}
+			fmt.Printf("token: %s\n", token)
+			if first && strings.Index(token, "'") != -1 {
+				key = strings.TrimRight(token, "'")
+				key = strings.TrimSpace(key)
+				fmt.Printf("key: %s\n", key)
+				first = false
+			} else if strings.Index(token, "'") != -1 {
+				val = strings.TrimRight(token, "'")
+				val = strings.TrimSpace(val)
+				fmt.Printf("val: %s\n", val)
+				havePair = true
+				break
+			}
+		}
+		if havePair {
+			fmt.Printf("key: %s, val: %s\n", key, val)
+			err := setStringMapValueWithValue(&ipsm, key, val)
+			if err != nil {
+				e := fmt.Errorf("Error: %s", err)
+				return nil, e
+			}
+		}
+	}
+	// False on error or EOF. Check error
+	err = scanner.Err()
+	if err != nil {
+		e := fmt.Errorf("Error: %s", err)
+		return nil, e
+	}
+	return &ipsm, nil
+}
+
 func printInputParams(ip *rplanlib.InputParams) {
-	fmt.Printf("InputParams:\n")
+	f := os.Stdout
+	fmt.Fprintf(f, "InputParams:\n")
 	m := structs.Map(ip)
 	i := 0
 	for k, v := range m {
 		if v != "" {
-			fmt.Printf("%3d::'%30s': '%#v'\n", i, k, v)
+			fmt.Fprintf(f, "%3d::'%30s': '%#v'\n", i, k, v)
 		}
 		i++
 	}
@@ -215,12 +278,12 @@ func listInputParamsStrMap() {
 }
 
 // print out the active input string string map
-func printInputParamsStrMap(m map[string]string) {
-	fmt.Printf("InputParamsStrMap:\n")
+func printInputParamsStrMap(m map[string]string, f *os.File) {
+	fmt.Fprintf(f, "InputParamsStrMap:\n")
 	//fmt.Printf("ip: map[string]string{\n")
 	for i, v := range rplanlib.InputStrDefs {
 		if m[v] != "" {
-			fmt.Printf("%3d::'%30s': '%s'\n", i, v, m[v])
+			fmt.Fprintf(f, "%3d::'%30s': '%s'\n", i, v, m[v])
 			//fmt.Printf("\"%s\": \"%s\",\n", v, m[v])
 		}
 	}
@@ -230,12 +293,12 @@ func printInputParamsStrMap(m map[string]string) {
 				(j-1)*len(rplanlib.InputStreamStrDefs)
 			k := fmt.Sprintf("%s%d", v, j)
 			if m[k] != "" {
-				fmt.Printf("%3d::'%30s': '%s'\n", lineno, k, m[k])
+				fmt.Fprintf(f, "%3d::'%30s': '%s'\n", lineno, k, m[k])
 				//fmt.Printf("\"%s\": \"%s\",\n", k, m[k])
 			}
 		}
 	}
-	fmt.Printf("\n")
+	fmt.Fprintf(f, "\n")
 	//fmt.Printf("},\n")
 }
 
@@ -338,8 +401,9 @@ func main() {
 	depositsPtr := pflag.BoolP("allowdeposits", "z", false,
 		"Allow optomizer to create deposits beyond those explicity specified")
 
-	InputStrStrMapPtr := pflag.BoolP("inputstringmap", "M", false,
-		"Display Input string map (key, value) for all input parameters")
+	OutputStrStrMapPtr := pflag.StringP("outputstringmap", "M", "",
+		"Output Input string map (key, value) for all input parameters (*.strmap)")
+	pflag.Lookup("outputstringmap").NoOptDefVal = "stdout"
 
 	InputStrStrMapKeysPtr := pflag.BoolP("inputstringmapkeys", "K", false,
 		"Display Input string map keys for all possible input parameters")
@@ -377,17 +441,31 @@ func main() {
 
 	msgList := rplanlib.NewWarnErrorList()
 
-	var tomlfile string
-	tomlfile = pflag.Arg(0)
+	infile := pflag.Arg(0)
+	var err error
+	var ipsmp *map[string]string
 
-	ipsmp, err := getInputStringsMapFromToml(tomlfile)
+	// infile can be .toml or .strmap, Toml file is assumed
+	if filepath.Ext(infile) == ".strmap" {
+		ipsmp, err = getInputStrStrMapFromFile(infile)
+	} else {
+		ipsmp, err = getInputStringsMapFromToml(infile)
+	}
 	if err != nil {
-		e := fmt.Errorf("Error: reading toml file: %s\n", err)
+		e := fmt.Errorf("reading file (%s): %s", infile, err)
 		printMsgAndExit(msgList, e)
 	}
 
-	if *InputStrStrMapPtr {
-		printInputParamsStrMap(*ipsmp)
+	strmapfile := (*os.File)(os.Stdout)
+	if *OutputStrStrMapPtr != "" {
+		if *OutputStrStrMapPtr != "stdout" {
+			strmapfile, err = os.Create(*OutputStrStrMapPtr)
+			if err != nil {
+				fmt.Printf("ARetirementPlanner: %s\n", err)
+				os.Exit(1)
+			}
+		}
+		printInputParamsStrMap(*ipsmp, strmapfile)
 	}
 
 	ip, err := rplanlib.NewInputParams(*ipsmp, msgList)
