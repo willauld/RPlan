@@ -207,7 +207,7 @@ func getInputStrStrMapFromFile(f string) (*map[string]string, error) {
 	// Scan for next token.
 	for scanner.Scan() {
 		line := scanner.Text()
-		fmt.Printf("Line: %s\n", line)
+		//fmt.Printf("Line: %s\n", line)
 		tokens := strings.SplitAfter(line, "'")
 		first := true
 		havePair := false
@@ -215,22 +215,22 @@ func getInputStrStrMapFromFile(f string) (*map[string]string, error) {
 			if strings.Index(token, ":") != -1 {
 				continue
 			}
-			fmt.Printf("token: %s\n", token)
+			//fmt.Printf("token: %s\n", token)
 			if first && strings.Index(token, "'") != -1 {
 				key = strings.TrimRight(token, "'")
 				key = strings.TrimSpace(key)
-				fmt.Printf("key: %s\n", key)
+				//fmt.Printf("key: %s\n", key)
 				first = false
 			} else if strings.Index(token, "'") != -1 {
 				val = strings.TrimRight(token, "'")
 				val = strings.TrimSpace(val)
-				fmt.Printf("val: %s\n", val)
+				//fmt.Printf("val: %s\n", val)
 				havePair = true
 				break
 			}
 		}
 		if havePair {
-			fmt.Printf("key: %s, val: %s\n", key, val)
+			//fmt.Printf("key: %s, val: %s\n", key, val)
 			err := setStringMapValueWithValue(&ipsm, key, val)
 			if err != nil {
 				e := fmt.Errorf("Error: %s", err)
