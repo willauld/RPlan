@@ -261,17 +261,19 @@ func printInputParams(ip *rplanlib.InputParams) {
 }
 
 // List all keys from input string string map
-func listInputParamsStrMap() {
+func listInputParamsStrMap(f *os.File) {
 	fmt.Printf("InputParamsStrMap Keys:\n")
 	for i, v := range rplanlib.InputStrDefs {
-		fmt.Printf("%3d::'%s'\n", i, v)
+		//fmt.Printf("%3d::'%s'\n", i, v)
+		fmt.Fprintf(f, "%3d::'%30s': ''\n", i, v)
 	}
 	for j := 1; j < rplanlib.MaxStreams+1; j++ {
 		for i, v := range rplanlib.InputStreamStrDefs {
 			lineno := i + len(rplanlib.InputStrDefs) +
 				(j-1)*len(rplanlib.InputStreamStrDefs)
 			k := fmt.Sprintf("%s%d", v, j)
-			fmt.Printf("%3d::'%s'\n", lineno, k)
+			//fmt.Printf("%3d::'%s'\n", lineno, k)
+			fmt.Fprintf(f, "%3d::'%30s': ''\n", lineno, k)
 		}
 	}
 	fmt.Printf("\n")
@@ -402,11 +404,12 @@ func main() {
 		"Allow optomizer to create deposits beyond those explicity specified")
 
 	OutputStrStrMapPtr := pflag.StringP("outputstringmap", "M", "",
-		"Output Input string map (key, value) for all input parameters (*.strmap)")
+		"Output Input string map (key, value) for all current input parameters (*.strmap)")
 	pflag.Lookup("outputstringmap").NoOptDefVal = "stdout"
 
-	InputStrStrMapKeysPtr := pflag.BoolP("inputstringmapkeys", "K", false,
-		"Display Input string map keys for all possible input parameters")
+	InputStrStrMapKeysPtr := pflag.StringP("inputstrmaptemplate", "K", "",
+		"Display Input string map for all possible input parameters (generates template (*.strmap))")
+	pflag.Lookup("inputstrmaptemplate").NoOptDefVal = "stdout"
 
 	versionPtr := pflag.BoolP("version", "V", false,
 		"Display the program version number and exit")
@@ -416,8 +419,18 @@ func main() {
 
 	pflag.Parse()
 
-	if *InputStrStrMapKeysPtr {
-		listInputParamsStrMap()
+	var err error
+
+	inputstrmapfile := (*os.File)(os.Stdout)
+	if *InputStrStrMapKeysPtr != "" {
+		if *InputStrStrMapKeysPtr != "stdout" {
+			inputstrmapfile, err = os.Create(*InputStrStrMapKeysPtr)
+			if err != nil {
+				fmt.Printf("ARetirementPlanner: %s\n", err)
+				os.Exit(1)
+			}
+		}
+		listInputParamsStrMap(inputstrmapfile)
 	}
 
 	if *helpPtr {
@@ -442,7 +455,6 @@ func main() {
 	msgList := rplanlib.NewWarnErrorList()
 
 	infile := pflag.Arg(0)
-	var err error
 	var ipsmp *map[string]string
 
 	// infile can be .toml or .strmap, Toml file is assumed
