@@ -411,6 +411,9 @@ func main() {
 		"Display Input string map for all possible input parameters (generates template (*.strmap))")
 	pflag.Lookup("inputstrmaptemplate").NoOptDefVal = "stdout"
 
+	fourPercentRulePtr := pflag.BoolP("4PercentRule", "4", false,
+		"Experimental: Override the 'Desired Income' with 4% of assets")
+
 	versionPtr := pflag.BoolP("version", "V", false,
 		"Display the program version number and exit")
 
@@ -522,7 +525,8 @@ func main() {
 
 	// TODO looks like verbosePTR does nothing - investigate
 	ms, err := rplanlib.NewModelSpecs(vindx, ti, *ip, *depositsPtr,
-		RoundToOneK, os.Stderr, logfile, csvfile, logfile, msgList)
+		RoundToOneK, *fourPercentRulePtr,
+		os.Stderr, logfile, csvfile, logfile, msgList)
 	if err != nil {
 		printMsgAndExit(msgList, err)
 	}
