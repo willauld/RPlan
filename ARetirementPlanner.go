@@ -412,7 +412,10 @@ func main() {
 	pflag.Lookup("inputstrmaptemplate").NoOptDefVal = "stdout"
 
 	fourPercentRulePtr := pflag.BoolP("4PercentRule", "4", false,
-		"Experimental: Override the 'Desired Income' with 4% of assets")
+		"Experimental: Override the 'Desired Income' with 4.5% of assets")
+
+	SPVRulePtr := pflag.BoolP("SPVRule", "5", false,
+		"Experimental: Extra output for to move toward including Statistical Present Value SPV based plan evaluation")
 
 	versionPtr := pflag.BoolP("version", "V", false,
 		"Display the program version number and exit")
@@ -612,6 +615,9 @@ func main() {
 			ms.PrintCapGainsBrackets(&res.X)
 		}
 		ms.PrintBaseConfig(&res.X)
+		if *SPVRulePtr {
+			ms.PrintAccountWithdrawals(&res.X) // TESTING TESTING TESTING FIXME TODO
+		}
 	} else {
 		str := fmt.Sprintf("LP Simplex Message: %v\n", res.Message)
 		fmt.Printf(str)
