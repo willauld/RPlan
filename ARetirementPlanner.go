@@ -403,6 +403,9 @@ func main() {
 	depositsPtr := pflag.BoolP("allowdeposits", "z", false,
 		"Allow optomizer to create deposits beyond those explicity specified")
 
+	taxYearPtr := pflag.IntP("taxyear", "Y", 2017,
+		"Set the year for the tax code to be used (currently 2017 and 2018 only)")
+
 	OutputStrStrMapPtr := pflag.StringP("outputstringmap", "M", "",
 		"Output Input string map (key, value) for all current input parameters (*.strmap)")
 	pflag.Lookup("outputstringmap").NoOptDefVal = "stdout"
@@ -494,7 +497,12 @@ func main() {
 
 	//fmt.Printf("InputParams: %#v\n", ip)
 	//os.Exit(0)
-	ti := rplanlib.NewTaxInfo(ip.FilingStatus)
+	if *taxYearPtr != 2017 && *taxYearPtr != 2018 {
+		fmt.Printf("ARetirementPlanner: %s\n",
+			"only the 2017 and 2018 tax code years are supported")
+		os.Exit(1)
+	}
+	ti := rplanlib.NewTaxInfo(ip.FilingStatus, *taxYearPtr)
 	taxbins := len(*ti.Taxtable)
 	cgbins := len(*ti.Capgainstable)
 	vindx, err := rplanlib.NewVectorVarIndex(ip.Numyr, taxbins,
