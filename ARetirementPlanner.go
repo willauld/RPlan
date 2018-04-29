@@ -403,7 +403,7 @@ func main() {
 	depositsPtr := pflag.BoolP("allowdeposits", "z", false,
 		"Allow optomizer to create deposits beyond those explicity specified")
 
-	taxYearPtr := pflag.IntP("taxyear", "Y", 2017,
+	taxYearPtr := pflag.IntP("taxyear", "Y", 2018,
 		"Set the year for the tax code to be used (currently 2017 and 2018 only)")
 
 	OutputStrStrMapPtr := pflag.StringP("outputstringmap", "M", "",
