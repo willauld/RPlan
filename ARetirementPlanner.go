@@ -435,7 +435,7 @@ func main() {
 		if *InputStrStrMapKeysPtr != "stdout" {
 			inputstrmapfile, err = os.Create(*InputStrStrMapKeysPtr)
 			if err != nil {
-				fmt.Printf("ARetirementPlanner: %s\n", err)
+				fmt.Printf("Retirement Optimizer: %s\n", err)
 				os.Exit(1)
 			}
 		}
@@ -482,7 +482,7 @@ func main() {
 		if *OutputStrStrMapPtr != "stdout" {
 			strmapfile, err = os.Create(*OutputStrStrMapPtr)
 			if err != nil {
-				fmt.Printf("ARetirementPlanner: %s\n", err)
+				fmt.Printf("Retirement Optimizer: %s\n", err)
 				os.Exit(1)
 			}
 		}
@@ -498,7 +498,7 @@ func main() {
 	//fmt.Printf("InputParams: %#v\n", ip)
 	//os.Exit(0)
 	if *taxYearPtr != 2017 && *taxYearPtr != 2018 {
-		fmt.Printf("ARetirementPlanner: %s\n",
+		fmt.Printf("Retirement Optimizer: %s\n",
 			"only the 2017 and 2018 tax code years are supported")
 		os.Exit(1)
 	}
@@ -515,7 +515,7 @@ func main() {
 	if *logfilePtr != "" {
 		logfile, err = os.Create(*logfilePtr)
 		if err != nil {
-			fmt.Printf("ARetirementPlanner: %s\n", err)
+			fmt.Printf("Retirement Optimizer: %s\n", err)
 			os.Exit(1)
 		}
 	}
@@ -524,7 +524,7 @@ func main() {
 	if *csvPtr != "" {
 		csvfile, err = os.Create(*csvPtr)
 		if err != nil {
-			fmt.Printf("ARetirementPlanner: %s\n", err)
+			fmt.Printf("Retirement Optimizer: %s\n", err)
 			os.Exit(1)
 		}
 	}
