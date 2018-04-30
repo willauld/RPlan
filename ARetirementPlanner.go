@@ -285,7 +285,7 @@ func printInputParamsStrMap(m map[string]string, f *os.File) {
 	//fmt.Printf("ip: map[string]string{\n")
 	for i, v := range rplanlib.InputStrDefs {
 		if m[v] != "" {
-			fmt.Fprintf(f, "%3d::'%30s': '%s'\n", i, v, m[v])
+			fmt.Fprintf(f, "%3d::'%32s': '%s'\n", i, v, m[v])
 			//fmt.Printf("\"%s\": \"%s\",\n", v, m[v])
 		}
 	}
@@ -295,7 +295,7 @@ func printInputParamsStrMap(m map[string]string, f *os.File) {
 				(j-1)*len(rplanlib.InputStreamStrDefs)
 			k := fmt.Sprintf("%s%d", v, j)
 			if m[k] != "" {
-				fmt.Fprintf(f, "%3d::'%30s': '%s'\n", lineno, k, m[k])
+				fmt.Fprintf(f, "%3d::'%32s': '%s'\n", lineno, k, m[k])
 				//fmt.Printf("\"%s\": \"%s\",\n", k, m[k])
 			}
 		}
