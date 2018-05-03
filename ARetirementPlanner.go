@@ -311,6 +311,9 @@ func main() {
 	depositsPtr := pflag.BoolP("allowdeposits", "z", false,
 		"Allow optomizer to create deposits beyond those explicity specified")
 
+	developerPtr := pflag.BoolP("developerinfo", "d", false,
+		"Extra output information for development")
+
 	taxYearPtr := pflag.IntP("taxyear", "Y", 2018,
 		"Set the year for the tax code to be used (currently 2017 and 2018 only)")
 
@@ -529,6 +532,9 @@ func main() {
 		}
 		if *TaxBracketPtr || *AllPlanTablesPtr {
 			ms.PrintTaxBrackets(&res.X)
+			if *developerPtr {
+				ms.PrintShadowTaxBrackets(&res.X)
+			}
 			ms.PrintCapGainsBrackets(&res.X)
 		}
 		ms.PrintBaseConfig(&res.X)
