@@ -25,9 +25,9 @@ var version = struct {
 	major int
 	minor int
 	str   string
-}{0, 3, "rc3"}
+}{0, 4, "rc1"}
 
-//__version__ = '0.3-rc3'
+//__version__ = '0.4-rc1'
 
 // TODO add to unit testing
 
