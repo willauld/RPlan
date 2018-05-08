@@ -1,25 +1,29 @@
-# This input file is meant as a starter for a joint plan
-
+# This input file is meant as a starter for a plan
 # most fields are options and have reasonable defaults
 
-#retirement_type = 'joint' # defaults to joint, could be single, joint (married) or mseparate (married filing separately)
+# defaults to joint, could be single, joint (married) 
+# or mseparate (married filing separately) 
+# type should match federal tax status
+#retirement_type = 'joint' 
+
 
 returns = 6		# return rate of investments, defaults to 6%
 inflation = 2.5	# yearly inflation rate, defaults to 0%
 
-# what to optimize for? 'Spending' or spending 'PlusEstate', defaults to Spending
+# what to optimize for? 'Spending' or spending 'PlusEstate'
+# defaults to Spending
 #maximize = "PlusEstate"
 
-[iam.retiree1]  # iam (for each) is required in some joint cases (".xxx" use to match accounts IRA/roth)
+[iam.retiree1]  # iam (for each) is required in some joint cases (".xxx" use to match accounts IRA/roth/SocialSecurity)
 primary = true  # retiree to have age listed first in the output (must choose one)
 age = 54        # your current age
 retire = 65     # age you plan to retire
 through = 75    # age you want to plan through
 
-[iam.retiree2]  # iam (for each) is required in some joint cases (".xxx" use to match accounts IRA/roth)
-age = 54        # your current age
-retire = 65     # age you plan to retire
-through = 75    # age you want to plan through
+#[iam.retiree2]  # iam (for each) is required in some joint cases (".xxx" use to match accounts IRA/roth)
+#age = 54        # your current age
+#retire = 65     # age you plan to retire
+#through = 75    # age you want to plan through
 
 #[SocialSecurity.retiree1]
 #FRA = 67            # your full retirement age (FRA) according to the IRS
