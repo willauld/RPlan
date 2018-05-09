@@ -32,6 +32,7 @@ var version = struct {
 // TODO add to unit testing
 
 /*
+// TODO FIXME This should be added to the library test suite
 def verifyInputs( c , A , b ):
     m = len(A)
     n = len(A[0])
@@ -485,7 +486,7 @@ func main() {
 		if *ModelAllPtr || !res.Success {
 			bindingOnly = false
 		}
-		ms.PrintModelMatrix(c, a, b, notes, slack, bindingOnly)
+		ms.PrintModelMatrix(c, a, b, notes, slack, bindingOnly, nil)
 	}
 
 	//if commandLineFlagWasSet("dumpbinary")
