@@ -24,10 +24,11 @@ import (
 var version = struct {
 	major int
 	minor int
+	patch int
 	str   string
-}{0, 4, "rc1"}
+}{0, 4, 0, "rc1"}
 
-//__version__ = '0.4-rc1'
+//__version__ = '0.4.0-rc1'
 
 // TODO add to unit testing
 
@@ -359,8 +360,8 @@ func main() {
 	}
 
 	if *versionPtr == true {
-		//__version__ = '0.3-rc2'
-		fmt.Printf("\t%s: Version %d.%d-%s\n", filepath.Base(os.Args[0]), version.major, version.minor, version.str)
+		//__version__ = '0.3.0-rc2'
+		fmt.Printf("\t%s: Version %d.%d.%d-%s\n", filepath.Base(os.Args[0]), version.major, version.minor, version.patch, version.str)
 		os.Exit(0)
 	}
 
