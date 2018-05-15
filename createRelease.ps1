@@ -29,7 +29,11 @@ Write-Output "verpatch is: $verpatch, Int $verpatchInt"
 if ($tagRepo) {
     $tagStr = "v$vermajor.$verminor.$verpatch"
     git tag -a $tagStr -m "Tag version $tagStr"
-    #git push origin $tagStr
+    git push origin $tagStr
+
+    # to delete tags if needed:
+    #git tag --delete $tagStr
+    #git push --delete origin $tagStr
 }
 
 $libgitver = git -C C:\home\auld\godev\src\github.com\willauld\rplanlib describe --always
