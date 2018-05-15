@@ -21,12 +21,27 @@ import (
 	"github.com/willauld/rplanlib"
 )
 
+var (
+	// See createRelease.ps1 for variable definition / values
+	vermajor      string
+	verminor      string
+	verpatch      string
+	verstr        string
+	buildTime     string
+	gitLibHash    string
+	gitDriverHash string
+)
+
 var version = struct {
-	major int
-	minor int
-	patch int
-	str   string
-}{0, 4, 0, "rc1"}
+	major         string
+	minor         string
+	patch         string
+	str           string
+	buildTime     string
+	gitLibHash    string
+	gitDriverHash string
+}{vermajor, verminor, verpatch,
+	verstr, buildTime, gitLibHash, gitDriverHash}
 
 //__version__ = '0.4.0-rc1'
 
@@ -361,7 +376,19 @@ func main() {
 
 	if *versionPtr == true {
 		//__version__ = '0.3.0-rc2'
-		fmt.Printf("\t%s: Version %d.%d.%d-%s\n", filepath.Base(os.Args[0]), version.major, version.minor, version.patch, version.str)
+		fmt.Printf("\t%s: Version %s.%s.%s", filepath.Base(os.Args[0]), version.major, version.minor, version.patch)
+
+		if version.str != "" {
+			fmt.Printf("-%s\n", version.str)
+		} else {
+			fmt.Printf("\n")
+		}
+
+		if *VerbosePtr {
+			fmt.Printf("\t\tBuild time:           %s\n", version.buildTime)
+			fmt.Printf("\t\tDriver main Git Hash: %s\n", version.gitDriverHash)
+			fmt.Printf("\t\tfplanlib Git Hash:    %s\n", version.gitLibHash)
+		}
 		os.Exit(0)
 	}
 
