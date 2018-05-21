@@ -312,7 +312,7 @@ func main() {
 	pflag.Lookup("loadbinary").NoOptDefVal = "./RPlanModelgo.datX"
 
 	logfilePtr := pflag.StringP("logfile", "l", "",
-		"Write RPlan results to Log file")
+		"Write results to Log file")
 	pflag.Lookup("logfile").NoOptDefVal = "./RPlan.log"
 
 	timePtr := pflag.BoolP("timesimplex", "S", false,
@@ -323,7 +323,7 @@ func main() {
 	pflag.Lookup("csv").NoOptDefVal = "./RPlan.csv"
 
 	oneKPtr := pflag.BoolP("nokrounding", "k", false,
-		"Do not round results output to thousands")
+		"Do not round results to thousands")
 
 	depositsPtr := pflag.BoolP("allowdeposits", "z", false,
 		"Allow optomizer to create deposits beyond those explicity specified")
@@ -335,11 +335,11 @@ func main() {
 		"Set the year for the tax code to be used (currently 2017 and 2018 only)")
 
 	OutputStrStrMapPtr := pflag.StringP("outputstringmap", "M", "",
-		"Output Input string map (key, value) for all current input parameters (*.strmap)")
+		"Output string map (key, value) for all current input parameters (*.strmap)")
 	pflag.Lookup("outputstringmap").NoOptDefVal = "stdout"
 
 	InputStrStrMapKeysPtr := pflag.StringP("inputstrmaptemplate", "K", "",
-		"Display Input string map for all possible input parameters (generates template (*.strmap))")
+		"Display string map for all possible input parameters (generates template (*.strmap))")
 	pflag.Lookup("inputstrmaptemplate").NoOptDefVal = "stdout"
 
 	fourPercentRulePtr := pflag.BoolP("4PercentRule", "4", false,
