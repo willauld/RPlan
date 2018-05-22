@@ -565,6 +565,7 @@ func main() {
 				ms.PrintShadowTaxBrackets(&res.X)
 			}
 			ms.PrintCapGainsBrackets(&res.X)
+			ms.PrintAssetSummary()
 		}
 		ms.PrintBaseConfig(&res.X)
 		if *SPVRulePtr {
