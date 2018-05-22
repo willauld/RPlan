@@ -235,6 +235,15 @@ func help() {
 	os.Exit(0)
 }
 
+func GetrplanlibVersionString() string {
+	v := rplanlib.Version
+	s := fmt.Sprintf("%s.%s.%s", v.Major, v.Minor, v.Patch)
+	if v.Str != "" {
+		s = fmt.Sprintf("%s-%s", s, v.Str)
+	}
+	return s
+}
+
 func printMsgAndExit(msgList *rplanlib.WarnErrorList, err error) {
 	errstr := fmt.Sprintf("%s", err)
 	ec := msgList.GetErrorCount()
@@ -376,18 +385,24 @@ func main() {
 
 	if *versionPtr == true {
 		//__version__ = '0.3.0-rc2'
-		fmt.Printf("\t%s: Version %s.%s.%s", filepath.Base(os.Args[0]), version.major, version.minor, version.patch)
-
-		if version.str != "" {
-			fmt.Printf("-%s\n", version.str)
+		if version.major == "" {
+			str := GetrplanlibVersionString()
+			fmt.Printf("\t%s: None Release Version, rplanlib: %s\n",
+				filepath.Base(os.Args[0]), str)
 		} else {
-			fmt.Printf("\n")
-		}
+			fmt.Printf("\t%s: Version %s.%s.%s", filepath.Base(os.Args[0]), version.major, version.minor, version.patch)
 
-		if *VerbosePtr {
-			fmt.Printf("\t\tBuild time:           %s\n", version.buildTime)
-			fmt.Printf("\t\tDriver main Git Hash: %s\n", version.gitDriverHash)
-			fmt.Printf("\t\tfplanlib Git Hash:    %s\n", version.gitLibHash)
+			if version.str != "" {
+				fmt.Printf("-%s\n", version.str)
+			} else {
+				fmt.Printf("\n")
+			}
+
+			if *VerbosePtr {
+				fmt.Printf("\t\tBuild time:           %s\n", version.buildTime)
+				fmt.Printf("\t\tDriver main Git Hash: %s\n", version.gitDriverHash)
+				fmt.Printf("\t\tfplanlib Git Hash:    %s\n", version.gitLibHash)
+			}
 		}
 		os.Exit(0)
 	}
