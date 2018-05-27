@@ -255,9 +255,9 @@ func printMsgAndExit(msgList *rplanlib.WarnErrorList, err error) {
 				found = true
 			}
 		}
-		if !found {
-			fmt.Printf("%s\n", errstr)
-		}
+	}
+	if !found {
+		fmt.Printf("%s\n", errstr)
 	}
 	printMsg(msgList)
 	os.Exit(0)
@@ -372,7 +372,7 @@ func main() {
 		if *InputStrStrMapKeysPtr != "stdout" {
 			inputstrmapfile, err = os.Create(*InputStrStrMapKeysPtr)
 			if err != nil {
-				fmt.Printf("Retirement Optimizer: %s\n", err)
+				fmt.Printf("%s: %s\n", filepath.Base(os.Args[0]), err)
 				os.Exit(1)
 			}
 		}
@@ -387,7 +387,7 @@ func main() {
 		//__version__ = '0.3.0-rc2'
 		if version.major == "" {
 			str := GetrplanlibVersionString()
-			fmt.Printf("\t%s: None Release Version, rplanlib: %s\n",
+			fmt.Printf("\t%s: No Release Version, rplanlib: %s\n",
 				filepath.Base(os.Args[0]), str)
 		} else {
 			fmt.Printf("\t%s: Version %s.%s.%s", filepath.Base(os.Args[0]), version.major, version.minor, version.patch)
@@ -437,7 +437,7 @@ func main() {
 		if *OutputStrStrMapPtr != "stdout" {
 			strmapfile, err = os.Create(*OutputStrStrMapPtr)
 			if err != nil {
-				fmt.Printf("Retirement Optimizer: %s\n", err)
+				fmt.Printf("%s: %s\n", filepath.Base(os.Args[0]), err)
 				os.Exit(1)
 			}
 		}
@@ -449,11 +449,16 @@ func main() {
 		printMsgAndExit(msgList, err)
 	}
 	//printInputParams(ip)
+	if *fourPercentRulePtr && ip.Maximize == rplanlib.PlusEstate {
+		str := "Four percent rule and spending PlusEstate can not be used together"
+		fmt.Printf("%s: %s\n", filepath.Base(os.Args[0]), str)
+		os.Exit(1)
+	}
 
 	//fmt.Printf("InputParams: %#v\n", ip)
 	//os.Exit(0)
 	if *taxYearPtr != 2017 && *taxYearPtr != 2018 {
-		fmt.Printf("Retirement Optimizer: %s\n",
+		fmt.Printf("%s: %s\n", filepath.Base(os.Args[0]),
 			"only the 2017 and 2018 tax code years are supported")
 		os.Exit(1)
 	}
@@ -470,7 +475,7 @@ func main() {
 	if *logfilePtr != "" {
 		logfile, err = os.Create(*logfilePtr)
 		if err != nil {
-			fmt.Printf("Retirement Optimizer: %s\n", err)
+			fmt.Printf("%s: %s\n", filepath.Base(os.Args[0]), err)
 			os.Exit(1)
 		}
 	}
@@ -479,7 +484,7 @@ func main() {
 	if *csvPtr != "" {
 		csvfile, err = os.Create(*csvPtr)
 		if err != nil {
-			fmt.Printf("Retirement Optimizer: %s\n", err)
+			fmt.Printf("%s: %s\n", filepath.Base(os.Args[0]), err)
 			os.Exit(1)
 		}
 	}
