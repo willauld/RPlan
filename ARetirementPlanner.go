@@ -133,6 +133,10 @@ func getInputStrStrMapFromFile(f string) (*map[string]string, error) {
 	for scanner.Scan() {
 		line := scanner.Text()
 		//fmt.Printf("Line: %s\n", line)
+		if line != "" && line[0] == '#' {
+			fmt.Printf("Skipping Line: %s\n", line)
+			continue
+		}
 		tokens := strings.SplitAfter(line, "'")
 		first := true
 		havePair := false
