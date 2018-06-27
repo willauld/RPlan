@@ -13,9 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/fatih/structs"
 	"github.com/spf13/pflag"
-	//pflag "flag"
 
 	"github.com/willauld/lpsimplex"
 	"github.com/willauld/rplanlib"
@@ -176,25 +174,12 @@ func getInputStrStrMapFromFile(f string) (*map[string]string, error) {
 	return &ipsm, nil
 }
 
-func printInputParams(ip *rplanlib.InputParams) {
-	f := os.Stdout
-	fmt.Fprintf(f, "InputParams:\n")
-	m := structs.Map(ip)
-	i := 0
-	for k, v := range m {
-		if v != "" {
-			fmt.Fprintf(f, "%3d::'%30s': '%#v'\n", i, k, v)
-		}
-		i++
-	}
-}
-
-// List all keys from input string string map
+// List all possible keys from input string string map
+// Can be used to create a template file
 func listInputParamsStrMap(f *os.File) {
 	fmt.Printf("InputParamsStrMap Keys:\n")
 	for i, v := range rplanlib.InputStrDefs {
-		//fmt.Printf("%3d::'%s'\n", i, v)
-		fmt.Fprintf(f, "%3d::'%30s': ''\n", i, v)
+		fmt.Fprintf(f, "%3d::'%32s': ''\n", i, v)
 	}
 	for j := 1; j < rplanlib.MaxStreams+1; j++ {
 		for i, v := range rplanlib.InputStreamStrDefs {
@@ -202,35 +187,10 @@ func listInputParamsStrMap(f *os.File) {
 				(j-1)*len(rplanlib.InputStreamStrDefs)
 			k := fmt.Sprintf("%s%d", v, j)
 			//fmt.Printf("%3d::'%s'\n", lineno, k)
-			fmt.Fprintf(f, "%3d::'%30s': ''\n", lineno, k)
+			fmt.Fprintf(f, "%3d::'%32s': ''\n", lineno, k)
 		}
 	}
 	fmt.Printf("\n")
-}
-
-// print out the active input string string map
-func printInputParamsStrMap(m map[string]string, f *os.File) {
-	fmt.Fprintf(f, "InputParamsStrMap:\n")
-	//fmt.Printf("ip: map[string]string{\n")
-	for i, v := range rplanlib.InputStrDefs {
-		if m[v] != "" {
-			fmt.Fprintf(f, "%3d::'%32s': '%s'\n", i, v, m[v])
-			//fmt.Printf("\"%s\": \"%s\",\n", v, m[v])
-		}
-	}
-	for j := 1; j < rplanlib.MaxStreams+1; j++ {
-		for i, v := range rplanlib.InputStreamStrDefs {
-			lineno := i + len(rplanlib.InputStrDefs) +
-				(j-1)*len(rplanlib.InputStreamStrDefs)
-			k := fmt.Sprintf("%s%d", v, j)
-			if m[k] != "" {
-				fmt.Fprintf(f, "%3d::'%32s': '%s'\n", lineno, k, m[k])
-				//fmt.Printf("\"%s\": \"%s\",\n", k, m[k])
-			}
-		}
-	}
-	fmt.Fprintf(f, "\n")
-	//fmt.Printf("},\n")
 }
 
 func help() {
@@ -371,6 +331,7 @@ func main() {
 
 	var err error
 
+	// writes an empty template with all possible input keys
 	inputstrmapfile := (*os.File)(os.Stdout)
 	if *InputStrStrMapKeysPtr != "" {
 		if *InputStrStrMapKeysPtr != "stdout" {
@@ -445,22 +406,19 @@ func main() {
 				os.Exit(1)
 			}
 		}
-		printInputParamsStrMap(*ipsmp, strmapfile)
+		rplanlib.WriteFileInputParamsStrMap(strmapfile, *ipsmp)
 	}
 
 	ip, err := rplanlib.NewInputParams(*ipsmp, msgList)
 	if err != nil {
 		printMsgAndExit(msgList, err)
 	}
-	//printInputParams(ip)
 	if *fourPercentRulePtr && ip.Maximize == rplanlib.PlusEstate {
 		str := "Four percent rule and spending PlusEstate can not be used together"
 		fmt.Printf("%s: %s\n", filepath.Base(os.Args[0]), str)
 		os.Exit(1)
 	}
 
-	//fmt.Printf("InputParams: %#v\n", ip)
-	//os.Exit(0)
 	if *taxYearPtr != 2017 && *taxYearPtr != 2018 {
 		fmt.Printf("%s: %s\n", filepath.Base(os.Args[0]),
 			"only the 2017 and 2018 tax code years are supported")
@@ -482,6 +440,7 @@ func main() {
 			fmt.Printf("%s: %s\n", filepath.Base(os.Args[0]), err)
 			os.Exit(1)
 		}
+		// TODO FIXME should a log file always start with the input parameters writen to the log? (Add this there?)
 	}
 
 	csvfile := (*os.File)(nil)
@@ -491,6 +450,7 @@ func main() {
 			fmt.Printf("%s: %s\n", filepath.Base(os.Args[0]), err)
 			os.Exit(1)
 		}
+		// TODO FIXME should a cvs file always start with the input parameters writen to the cvs? (Add this there?)
 	}
 
 	RoundToOneK := true
