@@ -533,6 +533,7 @@ func main() {
 		fmt.Printf(str)
 	}
 	if res.Success {
+		ms.ConsistancyCheck(&res.X) // TODO FIXME this will be changed after debug
 		ms.PrintActivitySummary(&res.X)
 		if *IncomePtr || *AllPlanTablesPtr {
 			ms.PrintIncomeExpenseDetails()
