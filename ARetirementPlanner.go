@@ -223,17 +223,17 @@ func printMsgAndExit(msgList *rplanlib.WarnErrorList, err error) {
 	if !found {
 		fmt.Printf("%s\n", errstr)
 	}
-	printMsg(msgList)
+	printMsg(os.Stdout, msgList)
 	os.Exit(0)
 }
 
-func printMsg(msgList *rplanlib.WarnErrorList) {
+func printMsg(f *os.File, msgList *rplanlib.WarnErrorList) {
 	// FIXME TODO
 	ec := msgList.GetErrorCount()
 	if ec > 0 {
-		fmt.Printf("%d Error(s) found:\n", ec)
+		fmt.Fprintf(f, "%d Error(s) found:\n", ec)
 		for i := 0; i < ec; i++ {
-			fmt.Printf("%s\n", msgList.GetError(i))
+			fmt.Fprintf(f, "%s\n", msgList.GetError(i))
 		}
 	}
 	msgList.ClearErrors()
@@ -241,9 +241,9 @@ func printMsg(msgList *rplanlib.WarnErrorList) {
 
 	wc := msgList.GetWarningCount()
 	if wc > 0 {
-		fmt.Printf("%d Warning(s) found:\n", wc)
+		fmt.Fprintf(f, "%d Warning(s) found:\n", wc)
 		for i := 0; i < wc; i++ {
-			fmt.Printf("%s\n", msgList.GetWarning(i))
+			fmt.Fprintf(f, "%s\n", msgList.GetWarning(i))
 		}
 	}
 	msgList.ClearWarnings()
@@ -407,7 +407,17 @@ func main() {
 		printMsgAndExit(msgList, e)
 	}
 
-	strmapfile := (*os.File)(os.Stdout)
+	logfile := os.Stdout
+	if *logfilePtr != "" {
+		logfile, err = os.Create(*logfilePtr)
+		if err != nil {
+			fmt.Printf("%s: %s\n", filepath.Base(os.Args[0]), err)
+			os.Exit(1)
+		}
+		// TODO FIXME should a log file always start with the input parameters writen to the log? (Add this there?)
+	}
+
+	strmapfile := logfile
 	if *OutputStrStrMapPtr != "" {
 		if *OutputStrStrMapPtr != "stdout" {
 			strmapfile, err = os.Create(*OutputStrStrMapPtr)
@@ -441,16 +451,6 @@ func main() {
 		cgbins, ip.Accmap, os.Stdout)
 	if err != nil {
 		printMsgAndExit(msgList, err)
-	}
-
-	logfile := os.Stdout
-	if *logfilePtr != "" {
-		logfile, err = os.Create(*logfilePtr)
-		if err != nil {
-			fmt.Printf("%s: %s\n", filepath.Base(os.Args[0]), err)
-			os.Exit(1)
-		}
-		// TODO FIXME should a log file always start with the input parameters writen to the log? (Add this there?)
 	}
 
 	csvfile := (*os.File)(nil)
@@ -529,21 +529,21 @@ func main() {
 	}
 
 	// Print all Error and Warning Messages
-	printMsg(msgList)
+	printMsg(logfile, msgList)
 
 	//fmt.Printf("Res: %#v\n", res)
 
 	if *VerbosePtr /*&& false*/ {
-		fmt.Printf("Num Vars:        %d\n", len(a[0]))
-		fmt.Printf("Num Constraints: %d\n", len(a))
-		fmt.Printf("res.Success: %v\n", res.Success)
+		fmt.Fprintf(logfile, "Num Vars:        %d\n", len(a[0]))
+		fmt.Fprintf(logfile, "Num Constraints: %d\n", len(a))
+		fmt.Fprintf(logfile, "res.Success: %v\n", res.Success)
 	}
 	if *timePtr {
 		str := fmt.Sprintf("\nTime: LPSimplex() took %s\n", elapsed)
-		fmt.Printf(str)
+		fmt.Fprintf(logfile, str)
 	}
 	if res.Success {
-		ms.ConsistancyCheck(&res.X) // TODO FIXME this will be changed after debug
+		ms.ConsistancyCheck(logfile, &res.X) // TODO FIXME this will be changed after debug
 		ms.PrintActivitySummary(&res.X)
 		if *IncomePtr || *AllPlanTablesPtr {
 			ms.PrintIncomeExpenseDetails()
