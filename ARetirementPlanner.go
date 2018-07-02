@@ -470,7 +470,7 @@ func main() {
 
 	// TODO looks like verbosePTR does nothing - investigate
 	ms, err := rplanlib.NewModelSpecs(vindx, ti, *ip, *depositsPtr,
-		RoundToOneK, *fourPercentRulePtr,
+		RoundToOneK, *developerPtr, *fourPercentRulePtr,
 		os.Stderr, logfile, csvfile, logfile, msgList)
 	if err != nil {
 		printMsgAndExit(msgList, err)
