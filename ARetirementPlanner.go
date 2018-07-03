@@ -194,6 +194,11 @@ func listInputParamsStrMap(f *os.File) {
 }
 
 func help() {
+	fmt.Printf("\n'%s", filepath.Base(os.Args[0]))
+	for i := 1; i < len(os.Args); i++ {
+		fmt.Printf(" %s", os.Args[i])
+	}
+	fmt.Printf("'\n\n")
 	fmt.Printf("\nUsage: %s [options]* configfile\n", filepath.Base(os.Args[0]))
 	pflag.PrintDefaults()
 	os.Exit(0)
