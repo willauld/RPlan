@@ -1,1 +1,10 @@
-~$*.docx
+~*.docx
+*.strmap
+*.toml
+.patchNum
+*.csv
+*.zip
+*.exe
+*.diff
+*.datX
+*.log
