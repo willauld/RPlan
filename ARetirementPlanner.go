@@ -548,7 +548,7 @@ func main() {
 		fmt.Fprintf(logfile, str)
 	}
 	if res.Success {
-		ms.ConsistancyCheck(logfile, &res.X) // TODO FIXME this will be changed after debug
+		ms.ConsistencyCheck(logfile, &res.X) // TODO FIXME this will be changed after debug
 		ms.PrintActivitySummary(&res.X)
 		if *IncomePtr || *AllPlanTablesPtr {
 			ms.PrintIncomeExpenseDetails()
