@@ -6,11 +6,9 @@ package main
 //
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/spf13/pflag"
@@ -109,70 +107,6 @@ func commandLineFlagWasSet(flag string) bool {
 	return false
 }
 */
-
-func getInputStrStrMapFromFile(f string) (*map[string]string, error) {
-	file, err := os.Open(f)
-	if err != nil {
-		e := fmt.Errorf("Error: %s", err)
-		return nil, e
-	}
-	defer file.Close()
-
-	ipsm := rplanlib.NewInputStringsMap()
-
-	scanner := bufio.NewScanner(file)
-
-	// Default scanner is bufio.ScanLines. Lets use ScanWords.
-	// Could also use a custom function of SplitFunc type
-	//scanner.Split(bufio.ScanWords)
-
-	var key, val string
-	// Scan for next token.
-	for scanner.Scan() {
-		line := scanner.Text()
-		//fmt.Printf("Line: %s\n", line)
-		if line != "" && line[0] == '#' {
-			fmt.Printf("Skipping Line: %s\n", line)
-			continue
-		}
-		tokens := strings.SplitAfter(line, "'")
-		first := true
-		havePair := false
-		for _, token := range tokens {
-			if strings.Index(token, ":") != -1 {
-				continue
-			}
-			//fmt.Printf("token: %s\n", token)
-			if first && strings.Index(token, "'") != -1 {
-				key = strings.TrimRight(token, "'")
-				key = strings.TrimSpace(key)
-				//fmt.Printf("key: %s\n", key)
-				first = false
-			} else if strings.Index(token, "'") != -1 {
-				val = strings.TrimRight(token, "'")
-				val = strings.TrimSpace(val)
-				//fmt.Printf("val: %s\n", val)
-				havePair = true
-				break
-			}
-		}
-		if havePair {
-			//fmt.Printf("key: %s, val: %s\n", key, val)
-			err := setStringMapValueWithValue(&ipsm, key, val)
-			if err != nil {
-				e := fmt.Errorf("Error: %s", err)
-				return nil, e
-			}
-		}
-	}
-	// False on error or EOF. Check error
-	err = scanner.Err()
-	if err != nil {
-		e := fmt.Errorf("Error: %s", err)
-		return nil, e
-	}
-	return &ipsm, nil
-}
 
 // List all possible keys from input string string map
 // Can be used to create a template file
@@ -403,9 +337,9 @@ func main() {
 
 	// infile can be .toml or .strmap, Toml file is assumed
 	if filepath.Ext(infile) == ".strmap" {
-		ipsmp, err = getInputStrStrMapFromFile(infile)
+		ipsmp, err = rplanlib.GetInputStrStrMapFromFile(infile)
 	} else {
-		ipsmp, err = getInputStringsMapFromToml(infile)
+		ipsmp, err = rplanlib.GetInputStringsMapFromToml(infile)
 	}
 	if err != nil {
 		e := fmt.Errorf("reading file (%s): %s", infile, err)
