@@ -40,6 +40,10 @@ $libgitver = git -C C:\home\auld\godev\src\github.com\willauld\rplanlib describe
 
 Write-Output "rplanlib git hash: $libgitver"
 
+$liblpsimplexgitver = git -C C:\home\auld\godev\src\github.com\willauld\lpsimplex describe --always
+
+Write-Output "lpsimplex git hash: $liblpsimplexgitver"
+
 $drivergitver = git describe --always --tags --long
 
 Write-Output "ro driver git hash: $drivergitver"
@@ -47,5 +51,5 @@ Write-Output "ro driver git hash: $drivergitver"
 $a = Get-Date
 $btime = $a.ToUniversalTime().ToString() -replace ' ', '_'
 
-go build -ldflags "-X main.vermajor=$vermajor -X main.verminor=$verminor -X main.verpatch=$verpatch -X main.verstr=$verStr -X main.gitDriverHash=$drivergitver -X main.gitLibHash=$libgitver -X main.buildTime=$btime " -o ro.exe -v
+go build -ldflags "-X main.vermajor=$vermajor -X main.verminor=$verminor -X main.verpatch=$verpatch -X main.verstr=$verStr -X main.gitDriverHash=$drivergitver -X main.gitLibHash=$libgitver -X main.buildTime=$btime -X main.gitlpsimplexHash=$liblpsimplexgitver " -o ro.exe -v
 

@@ -19,25 +19,27 @@ import (
 
 var (
 	// See createRelease.ps1 for variable definition / values
-	vermajor      string
-	verminor      string
-	verpatch      string
-	verstr        string
-	buildTime     string
-	gitLibHash    string
-	gitDriverHash string
+	vermajor         string
+	verminor         string
+	verpatch         string
+	verstr           string
+	buildTime        string
+	gitLibHash       string
+	gitDriverHash    string
+	gitlpsimplexHash string
 )
 
 var version = struct {
-	major         string
-	minor         string
-	patch         string
-	str           string
-	buildTime     string
-	gitLibHash    string
-	gitDriverHash string
+	major            string
+	minor            string
+	patch            string
+	str              string
+	buildTime        string
+	gitLibHash       string
+	gitDriverHash    string
+	gitlpsimplexHash string
 }{vermajor, verminor, verpatch,
-	verstr, buildTime, gitLibHash, gitDriverHash}
+	verstr, buildTime, gitLibHash, gitDriverHash, gitlpsimplexHash}
 
 //__version__ = '0.4.0-rc1'
 
@@ -140,6 +142,15 @@ func help() {
 
 func GetrplanlibVersionString() string {
 	v := rplanlib.Version
+	s := fmt.Sprintf("%s.%s.%s", v.Major, v.Minor, v.Patch)
+	if v.Str != "" {
+		s = fmt.Sprintf("%s-%s", s, v.Str)
+	}
+	return s
+}
+
+func GetlpsimplexVersionString() string {
+	v := lpsimplex.Version
 	s := fmt.Sprintf("%s.%s.%s", v.Major, v.Minor, v.Patch)
 	if v.Str != "" {
 		s = fmt.Sprintf("%s-%s", s, v.Str)
@@ -291,8 +302,9 @@ func main() {
 		//__version__ = '0.3.0-rc2'
 		if version.major == "" {
 			str := GetrplanlibVersionString()
-			fmt.Printf("\t%s: No Release Version, rplanlib: %s\n",
-				filepath.Base(os.Args[0]), str)
+			str2 := GetlpsimplexVersionString()
+			fmt.Printf("\t%s: No Release Version,\n\t\trplanlib: %s\n\t\tlpsimplex: %s\n",
+				filepath.Base(os.Args[0]), str, str2)
 		} else {
 			fmt.Printf("\t%s: Version %s.%s.%s", filepath.Base(os.Args[0]), version.major, version.minor, version.patch)
 
@@ -305,7 +317,8 @@ func main() {
 			if *VerbosePtr {
 				fmt.Printf("\t\tBuild time:           %s\n", version.buildTime)
 				fmt.Printf("\t\tDriver main Git Hash: %s\n", version.gitDriverHash)
-				fmt.Printf("\t\tfplanlib Git Hash:    %s\n", version.gitLibHash)
+				fmt.Printf("\t\trplanlib Git Hash:    %s\n", version.gitLibHash)
+				fmt.Printf("\t\tlpsimplex Git Hash:    %s\n", version.gitLibHash)
 			}
 		}
 		os.Exit(0)
@@ -482,7 +495,7 @@ func main() {
 		fmt.Fprintf(logfile, str)
 	}
 	if res.Success {
-		ms.ConsistencyCheck(logfile, &res.X) // TODO FIXME this will be changed after debug
+		ms.ConsistencyCheckBrackets(logfile, &res.X) // TODO FIXME this will be changed after debug
 		ms.PrintActivitySummary(&res.X)
 		if *IncomePtr || *AllPlanTablesPtr {
 			ms.PrintIncomeExpenseDetails()
