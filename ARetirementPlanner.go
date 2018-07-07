@@ -27,6 +27,7 @@ var (
 	gitLibHash       string
 	gitDriverHash    string
 	gitlpsimplexHash string
+	LAO              rplanlib.AppOutput
 )
 
 var version = struct {
@@ -171,19 +172,19 @@ func printMsgAndExit(msgList *rplanlib.WarnErrorList, err error) {
 		}
 	}
 	if !found {
-		fmt.Printf("%s\n", errstr)
+		LAO.Output(fmt.Sprintf("%s\n", errstr))
 	}
-	printMsg(os.Stdout, msgList)
+	printMsg(msgList)
 	os.Exit(0)
 }
 
-func printMsg(f *os.File, msgList *rplanlib.WarnErrorList) {
+func printMsg(msgList *rplanlib.WarnErrorList) {
 	// FIXME TODO
 	ec := msgList.GetErrorCount()
 	if ec > 0 {
-		fmt.Fprintf(f, "%d Error(s) found:\n", ec)
+		LAO.Output(fmt.Sprintf("%d Error(s) found:\n", ec))
 		for i := 0; i < ec; i++ {
-			fmt.Fprintf(f, "%s\n", msgList.GetError(i))
+			LAO.Output(fmt.Sprintf("%s\n", msgList.GetError(i)))
 		}
 	}
 	msgList.ClearErrors()
@@ -191,9 +192,9 @@ func printMsg(f *os.File, msgList *rplanlib.WarnErrorList) {
 
 	wc := msgList.GetWarningCount()
 	if wc > 0 {
-		fmt.Fprintf(f, "%d Warning(s) found:\n", wc)
+		LAO.Output(fmt.Sprintf("%d Warning(s) found:\n", wc))
 		for i := 0; i < wc; i++ {
-			fmt.Fprintf(f, "%s\n", msgList.GetWarning(i))
+			LAO.Output(fmt.Sprintf("%s\n", msgList.GetWarning(i)))
 		}
 	}
 	msgList.ClearWarnings()
@@ -368,6 +369,15 @@ func main() {
 		}
 		// TODO FIXME should a log file always start with the input parameters writen to the log? (Add this there?)
 	}
+	csvfile := (*os.File)(nil)
+	if *csvPtr != "" {
+		csvfile, err = os.Create(*csvPtr)
+		if err != nil {
+			fmt.Printf("%s: %s\n", filepath.Base(os.Args[0]), err)
+			os.Exit(1)
+		}
+		// TODO FIXME should a cvs file always start with the input parameters writen to the cvs? (Add this there?)
+	}
 
 	strmapfile := logfile
 	if *OutputStrStrMapPtr != "" {
@@ -396,6 +406,9 @@ func main() {
 			"only the 2017 and 2018 tax code years are supported")
 		os.Exit(1)
 	}
+
+	LAO = rplanlib.NewAppOutput(logfile, csvfile)
+
 	ti := rplanlib.NewTaxInfo(ip.FilingStatus, *taxYearPtr)
 	taxbins := len(*ti.Taxtable)
 	cgbins := len(*ti.Capgainstable)
@@ -403,16 +416,6 @@ func main() {
 		cgbins, ip.Accmap, os.Stdout)
 	if err != nil {
 		printMsgAndExit(msgList, err)
-	}
-
-	csvfile := (*os.File)(nil)
-	if *csvPtr != "" {
-		csvfile, err = os.Create(*csvPtr)
-		if err != nil {
-			fmt.Printf("%s: %s\n", filepath.Base(os.Args[0]), err)
-			os.Exit(1)
-		}
-		// TODO FIXME should a cvs file always start with the input parameters writen to the cvs? (Add this there?)
 	}
 
 	RoundToOneK := true
@@ -481,7 +484,7 @@ func main() {
 	}
 
 	// Print all Error and Warning Messages
-	printMsg(logfile, msgList)
+	printMsg(msgList)
 
 	//fmt.Printf("Res: %#v\n", res)
 
