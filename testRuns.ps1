@@ -1,10 +1,19 @@
 
 param(
-    [string]$stop_count = 3
+    [int]$stop_count = 3
 )
 #echo "running testRun.ps1"
+echo "Stop Count is: $stop_count"
+
 cd .\tempResults
+
 $tests_strmap = Get-ChildItem ".\" -Filter *.strmap 
+#$tests_toml = Get-ChildItem ".\" -Filter *.toml
+#$all_tests = $test_strmap + $test_toml
+
+#$flags = "-AkvdMmo"
+$flags = "-AkvdM"
+
 #echo $tests_strmap
 $All_OK = $true 
 for ($i = 0; $i -lt $tests_strmap.Count; $i++) {
@@ -15,10 +24,10 @@ for ($i = 0; $i -lt $tests_strmap.Count; $i++) {
     #cd .\tempResults
     #pwd
 
-    #cp $test_basefile".log" $test_basefile".knowngood.log"
-    #cp $test_basefile".csv" $test_basefile".knowngood.csv"
+    cp $test_basefile".log" $test_basefile".knowngood.log"
+    cp $test_basefile".csv" $test_basefile".knowngood.csv"
 
-    go run  ..\ARetirementPlanner.go  ..\tomldata.go $test_file --logfile=$test_basefile".log" --csv=$test_basefile".csv" -AkvdMmo
+    go run  ..\ARetirementPlanner.go  ..\tomldata.go $test_file --logfile=$test_basefile".log" --csv=$test_basefile".csv" $flags
 
     compare-object (get-content $test_basefile".log") (get-content $test_basefile".knowngood.log") > $test_basefile".diff"
 
