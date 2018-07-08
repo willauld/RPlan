@@ -6,6 +6,8 @@ param(
     [switch]$tagRepo = $false
 )
 
+#Set-PSDebug -Trace 2
+
 # file has current patch number mananged by this script
 $verPatchFile = ".patchNum" 
 
@@ -53,3 +55,6 @@ $btime = $a.ToUniversalTime().ToString() -replace ' ', '_'
 
 go build -ldflags "-X main.vermajor=$vermajor -X main.verminor=$verminor -X main.verpatch=$verpatch -X main.verstr=$verStr -X main.gitDriverHash=$drivergitver -X main.gitLibHash=$libgitver -X main.buildTime=$btime -X main.gitlpsimplexHash=$liblpsimplexgitver " -o ro.exe -v
 
+.\ro.exe -Vv
+
+#Set-PSDebug -Trace 0
