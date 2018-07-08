@@ -319,7 +319,7 @@ func main() {
 				fmt.Printf("\t\tBuild time:           %s\n", version.buildTime)
 				fmt.Printf("\t\tDriver main Git Hash: %s\n", version.gitDriverHash)
 				fmt.Printf("\t\trplanlib Git Hash:    %s\n", version.gitLibHash)
-				fmt.Printf("\t\tlpsimplex Git Hash:    %s\n", version.gitLibHash)
+				fmt.Printf("\t\tlpsimplex Git Hash:    %s\n", version.gitlpsimplexHash)
 			}
 		}
 		os.Exit(0)
