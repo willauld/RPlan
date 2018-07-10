@@ -201,6 +201,7 @@ func printMsg(msgList *rplanlib.WarnErrorList) {
 }
 
 func main() {
+	LAO = rplanlib.NewAppOutput(nil, nil) //defaults to stdout
 
 	//parser = argparse.ArgumentParser(description='Create an optimized finacial plan for retirement.')
 	VerbosePtr := pflag.BoolP("verbose", "v", false,
