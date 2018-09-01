@@ -202,6 +202,7 @@ func printMsg(msgList *rplanlib.WarnErrorList) {
 
 func main() {
 	LAO = rplanlib.NewAppOutput(nil, nil) //defaults to stdout
+	writeCmdLine := false
 
 	//parser = argparse.ArgumentParser(description='Create an optimized finacial plan for retirement.')
 	VerbosePtr := pflag.BoolP("verbose", "v", false,
@@ -368,6 +369,7 @@ func main() {
 			fmt.Printf("%s: %s\n", filepath.Base(os.Args[0]), err)
 			os.Exit(1)
 		}
+		writeCmdLine = true
 		// TODO FIXME should a log file always start with the input parameters writen to the log? (Add this there?)
 	}
 	csvfile := (*os.File)(nil)
@@ -377,6 +379,7 @@ func main() {
 			fmt.Printf("%s: %s\n", filepath.Base(os.Args[0]), err)
 			os.Exit(1)
 		}
+		writeCmdLine = true
 		// TODO FIXME should a cvs file always start with the input parameters writen to the cvs? (Add this there?)
 	}
 
@@ -407,8 +410,10 @@ func main() {
 			"only the 2017 and 2018 tax code years are supported")
 		os.Exit(1)
 	}
-
-	LAO = rplanlib.NewAppOutput(logfile, csvfile)
+	LAO = rplanlib.NewAppOutput(csvfile, logfile)
+	if writeCmdLine {
+		LAO.Output(fmt.Sprintln(os.Args))
+	}
 
 	ti := rplanlib.NewTaxInfo(ip.FilingStatus, *taxYearPtr)
 	taxbins := len(*ti.Taxtable)
@@ -443,8 +448,8 @@ func main() {
 
 	tol := 1.0e-7
 
-	bland := false
-	maxiter := 4000
+	bland := false  // true   //false
+	maxiter := 4000 // 4000
 
 	callback := lpsimplex.Callbackfunc(nil)
 	//callback := lpsimplex.LPSimplexVerboseCallback
@@ -457,15 +462,20 @@ func main() {
 
 	if *ModelAllPtr || *ModelBindingPtr {
 		slack := []float64(nil)
-		if res.Success {
+		if res.Success || res.Status == 1 /*that is exceeded maxiter*/ {
 			slack = res.Slack
 		}
 		bindingOnly := true
 		if *ModelAllPtr || !res.Success {
 			bindingOnly = false
 		}
+		//fmt.Printf("*** c[ms.Vindx.B(32,0)]: %6.4f\n", c[ms.Vindx.B(32, 0)])
 		ms.PrintModelMatrix(c, a, b, notes, slack, bindingOnly, nil)
 	}
+	// Write model in format consumable by lp_solve
+	//fmt.Printf("*** c[ms.Vindx.B(32,0)]: %6.4f\n", c[ms.Vindx.B(32, 0)])
+	ms.WriteLPFormatModel(c, a, b, notes, "rplan.lp", res.X, fmt.Sprintln(os.Args))
+	//fmt.Printf("*** c[ms.Vindx.B(32,0)]: %6.4f\n", c[ms.Vindx.B(32, 0)])
 
 	//if commandLineFlagWasSet("dumpbinary")
 	if *dumpBinaryPtr != "" {
@@ -492,13 +502,15 @@ func main() {
 	if *VerbosePtr /*&& false*/ {
 		fmt.Fprintf(logfile, "Num Vars:        %d\n", len(a[0]))
 		fmt.Fprintf(logfile, "Num Constraints: %d\n", len(a))
-		fmt.Fprintf(logfile, "res.Success: %v\n", res.Success)
+		fmt.Fprintf(logfile, "Iterations:      %d\n", res.Nitr)
+		fmt.Fprintf(logfile, "Objective func:  %15.4f\n", res.Fun)
+		fmt.Fprintf(logfile, "res.Success:     %v\n", res.Success)
 	}
 	if *timePtr {
 		str := fmt.Sprintf("\nTime: LPSimplex() took %s\n", elapsed)
 		fmt.Fprintf(logfile, str)
 	}
-	if res.Success {
+	if res.Success || (res.Status == 1 && *developerPtr) {
 		ms.ConsistencyCheckBrackets(&res.X) // TODO FIXME this will be changed after debug
 		ms.PrintActivitySummary(&res.X)
 		if *IncomePtr || *AllPlanTablesPtr {
