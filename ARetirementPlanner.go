@@ -268,6 +268,10 @@ func main() {
 		"Display string map for all possible input parameters (generates template (*.strmap))")
 	pflag.Lookup("inputstrmaptemplate").NoOptDefVal = "stdout"
 
+	// FIXME only works with piecewiseTaxfunction branch
+	//ModelSpecsSetUsePiecewisePtr := pflag.BoolP("piecewise", "p", false,
+	//	"Use piecewise linear tax calculation")
+
 	fourPercentRulePtr := pflag.BoolP("4PercentRule", "4", false,
 		"Experimental: Override the 'Desired Income' with 4.5% of assets")
 
@@ -436,6 +440,10 @@ func main() {
 	if err != nil {
 		printMsgAndExit(msgList, err)
 	}
+	// FIXME only works with piecewiseTaxfunction branch
+	//if *ModelSpecsSetUsePiecewisePtr {
+	//	ms.UsePieceWiseMethod = true
+	//}
 
 	//if commandLineFlagWasSet("loadbinary")
 	//fmt.Printf("ModelSpecs: %#v\n", ms)
@@ -447,7 +455,6 @@ func main() {
 	c, a, b, notes := ms.BuildModel()
 
 	tol := 1.0e-7
-
 	bland := false  // true   //false
 	maxiter := 4000 // 4000
 
@@ -471,6 +478,7 @@ func main() {
 		}
 		//fmt.Printf("*** c[ms.Vindx.B(32,0)]: %6.4f\n", c[ms.Vindx.B(32, 0)])
 		ms.PrintModelMatrix(c, a, b, notes, slack, bindingOnly, nil)
+		ms.WriteObjectFunctionSolution(c, res.X, nil)
 	}
 	// Write model in format consumable by lp_solve
 	//fmt.Printf("*** c[ms.Vindx.B(32,0)]: %6.4f\n", c[ms.Vindx.B(32, 0)])
