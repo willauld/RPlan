@@ -282,6 +282,9 @@ func main() {
 	SPVRulePtr := pflag.BoolP("SPVRule", "5", false,
 		"Experimental: Extra output for to move toward including Statistical Present Value SPV based plan evaluation")
 
+	DynamicBlandPtr := pflag.BoolP("DynamicBland", "B", false,
+		"Enable Bland Pivot Rule when too many degenterate pivots")
+
 	versionPtr := pflag.BoolP("version", "V", false,
 		"Display the program version number and exit")
 
@@ -467,6 +470,9 @@ func main() {
 	//callback := lpsimplex.LPSimplexTerseCallback
 	disp := false //*VerbosePtr //true // false //true
 
+	if *DynamicBlandPtr {
+		lpsimplex.LPSimplexSetNewBehavior(200, true)
+	}
 	start := time.Now()
 	res := lpsimplex.LPSimplex(c, a, b, nil, nil, nil, callback, disp, maxiter, tol, bland)
 	elapsed := time.Since(start)
