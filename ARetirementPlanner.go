@@ -245,7 +245,7 @@ func main() {
 		"Display the time used by the simplex solver")
 
 	csvPtr := pflag.StringP("csv", "c", "",
-		"Additionally write output to a csv file")
+		"Write output to a csv file")
 	pflag.Lookup("csv").NoOptDefVal = "./RPlan.csv"
 
 	oneKPtr := pflag.BoolP("nokrounding", "k", false,
@@ -267,6 +267,10 @@ func main() {
 	InputStrStrMapKeysPtr := pflag.StringP("inputstrmaptemplate", "K", "",
 		"Display string map for all possible input parameters (generates template (*.strmap))")
 	pflag.Lookup("inputstrmaptemplate").NoOptDefVal = "stdout"
+
+	LPoutputPtr := pflag.StringP("lpm", "f", "",
+		"Write model out as LP_solve model format to a .lp file")
+	pflag.Lookup("lpm").NoOptDefVal = "./RPlan.lp"
 
 	// FIXME only works with piecewiseTaxfunction branch
 	//ModelSpecsSetUsePiecewisePtr := pflag.BoolP("piecewise", "p", false,
@@ -384,7 +388,7 @@ func main() {
 			os.Exit(1)
 		}
 		writeCmdLine = true
-		// TODO FIXME should a cvs file always start with the input parameters writen to the cvs? (Add this there?)
+		// TODO FIXME should a csv file always start with the input parameters writen to the csv? (Add this there?)
 	}
 
 	strmapfile := logfile
@@ -480,10 +484,14 @@ func main() {
 		ms.PrintModelMatrix(c, a, b, notes, slack, bindingOnly, nil)
 		ms.WriteObjectFunctionSolution(c, res.X, nil)
 	}
-	// Write model in format consumable by lp_solve
-	//fmt.Printf("*** c[ms.Vindx.B(32,0)]: %6.4f\n", c[ms.Vindx.B(32, 0)])
-	ms.WriteLPFormatModel(c, a, b, notes, "rplan.lp", res.X, fmt.Sprintln(os.Args))
-	//fmt.Printf("*** c[ms.Vindx.B(32,0)]: %6.4f\n", c[ms.Vindx.B(32, 0)])
+	if *LPoutputPtr != "" {
+		fmt.Printf("TESTING: *LPoutputPtr: %s\n", *LPoutputPtr)
+		//LPoutputPtr := pflag.StringP("lpm", "L", "",
+		// Write model in format consumable by lp_solve
+		//fmt.Printf("*** c[ms.Vindx.B(32,0)]: %6.4f\n", c[ms.Vindx.B(32, 0)])
+		ms.WriteLPFormatModel(c, a, b, notes, *LPoutputPtr, res.X, fmt.Sprintln(os.Args))
+		//fmt.Printf("*** c[ms.Vindx.B(32,0)]: %6.4f\n", c[ms.Vindx.B(32, 0)])
+	}
 
 	//if commandLineFlagWasSet("dumpbinary")
 	if *dumpBinaryPtr != "" {
