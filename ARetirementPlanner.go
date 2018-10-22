@@ -471,7 +471,7 @@ func main() {
 	disp := false //*VerbosePtr //true // false //true
 
 	if *DynamicBlandPtr {
-		lpsimplex.LPSimplexSetNewBehavior(200, true)
+		lpsimplex.LPSimplexSetNewBehavior(lpsimplex.NB_CMD_RESET, true)
 	}
 	start := time.Now()
 	res := lpsimplex.LPSimplex(c, a, b, nil, nil, nil, callback, disp, maxiter, tol, bland)
@@ -522,11 +522,13 @@ func main() {
 	//fmt.Printf("Res: %#v\n", res)
 
 	if *VerbosePtr /*&& false*/ {
-		fmt.Fprintf(logfile, "Num Vars:        %d\n", len(a[0]))
-		fmt.Fprintf(logfile, "Num Constraints: %d\n", len(a))
-		fmt.Fprintf(logfile, "Iterations:      %d\n", res.Nitr)
-		fmt.Fprintf(logfile, "Objective func:  %15.4f\n", res.Fun)
-		fmt.Fprintf(logfile, "res.Success:     %v\n", res.Success)
+		degenCount := lpsimplex.LPSimplexSetNewBehavior(lpsimplex.NB_CMD_NOP, false)
+		fmt.Fprintf(logfile, "Num Vars:         %d\n", len(a[0]))
+		fmt.Fprintf(logfile, "Num Constraints:  %d\n", len(a))
+		fmt.Fprintf(logfile, "Iterations:       %d\n", res.Nitr)
+		fmt.Fprintf(logfile, "Degen Iterations: %d\n", degenCount)
+		fmt.Fprintf(logfile, "Objective func:   %15.4f\n", res.Fun)
+		fmt.Fprintf(logfile, "res.Success:      %v\n", res.Success)
 	}
 	if *timePtr {
 		str := fmt.Sprintf("\nTime: LPSimplex() took %s\n", elapsed)
