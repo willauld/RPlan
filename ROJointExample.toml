@@ -41,13 +41,13 @@ age = "65-70"
 inflation = false
 tax = false          # count this as ordinary taxable income (true/false)
 
-[income.rental_1]
+[income.rental1]
 amount = 5_000
 age = "67-"
 inflation = true
 tax = true          # count this as income tax
 
-[income.rental_2]
+[income.rental2]
 amount = 2400
 age = "67-"
 inflation = true
