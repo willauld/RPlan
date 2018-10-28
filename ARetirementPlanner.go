@@ -251,9 +251,6 @@ func main() {
 	oneKPtr := pflag.BoolP("nokrounding", "k", false,
 		"Do not round results to thousands")
 
-	depositsPtr := pflag.BoolP("allowdeposits", "z", false,
-		"Allow optomizer to create deposits beyond those explicity specified")
-
 	developerPtr := pflag.BoolP("developerinfo", "d", false,
 		"Extra output information for development")
 
@@ -283,7 +280,7 @@ func main() {
 		"Experimental: Extra output for to move toward including Statistical Present Value SPV based plan evaluation")
 
 	DynamicBlandPtr := pflag.BoolP("DynamicBland", "B", false,
-		"Enable Bland Pivot Rule when too many degenterate pivots")
+		"Enable Bland Pivot Rule after each degenterate pivot")
 
 	versionPtr := pflag.BoolP("version", "V", false,
 		"Display the program version number and exit")
@@ -441,7 +438,7 @@ func main() {
 	}
 
 	// TODO looks like verbosePTR does nothing - investigate
-	ms, err := rplanlib.NewModelSpecs(vindx, ti, *ip, *depositsPtr,
+	ms, err := rplanlib.NewModelSpecs(vindx, ti, *ip,
 		RoundToOneK, *developerPtr, *fourPercentRulePtr,
 		os.Stderr, logfile, csvfile, logfile, msgList)
 	if err != nil {
