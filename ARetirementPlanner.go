@@ -282,6 +282,9 @@ func main() {
 	DynamicBlandPtr := pflag.BoolP("DynamicBland", "B", false,
 		"Enable Bland Pivot Rule after each degenterate pivot")
 
+	ScaleModelPtr := pflag.BoolP("ScaleModel", "E", false,
+		"Equilibrate the model through scaling")
+
 	versionPtr := pflag.BoolP("version", "V", false,
 		"Display the program version number and exit")
 
@@ -466,10 +469,15 @@ func main() {
 	//callback := lpsimplex.LPSimplexVerboseCallback
 	//callback := lpsimplex.LPSimplexTerseCallback
 	disp := false //*VerbosePtr //true // false //true
-
+	nb_cmd := lpsimplex.NB_CMD_RESET
 	if *DynamicBlandPtr {
-		lpsimplex.LPSimplexSetNewBehavior(lpsimplex.NB_CMD_RESET, true)
+		nb_cmd = nb_cmd | lpsimplex.NB_CMD_USEDYNAMICBLAND
 	}
+	if *ScaleModelPtr {
+		nb_cmd = nb_cmd | lpsimplex.NB_CMD_SCALEME | lpsimplex.NB_CMD_SCALEME_POW2
+	}
+	lpsimplex.LPSimplexSetNewBehavior(nb_cmd)
+
 	start := time.Now()
 	res := lpsimplex.LPSimplex(c, a, b, nil, nil, nil, callback, disp, maxiter, tol, bland)
 	elapsed := time.Since(start)
@@ -519,7 +527,7 @@ func main() {
 	//fmt.Printf("Res: %#v\n", res)
 
 	if *VerbosePtr /*&& false*/ {
-		degenCount := lpsimplex.LPSimplexSetNewBehavior(lpsimplex.NB_CMD_NOP, false)
+		degenCount := lpsimplex.LPSimplexSetNewBehavior(lpsimplex.NB_CMD_NOP)
 		fmt.Fprintf(logfile, "Num Vars:         %d\n", len(a[0]))
 		fmt.Fprintf(logfile, "Num Constraints:  %d\n", len(a))
 		fmt.Fprintf(logfile, "Iterations:       %d\n", res.Nitr)
