@@ -27,7 +27,8 @@ var (
 	gitLibHash       string
 	gitDriverHash    string
 	gitlpsimplexHash string
-	LAO              rplanlib.AppOutput
+	// LAO is Local App Output var
+	LAO rplanlib.AppOutput
 )
 
 var version = struct {
@@ -141,6 +142,7 @@ func help() {
 	os.Exit(0)
 }
 
+// GetrplanlibVersionString returns a version string
 func GetrplanlibVersionString() string {
 	v := rplanlib.Version
 	s := fmt.Sprintf("%s.%s.%s", v.Major, v.Minor, v.Patch)
@@ -150,6 +152,7 @@ func GetrplanlibVersionString() string {
 	return s
 }
 
+// GetlpsimplexVersionString returns the lpsimplex library version string
 func GetlpsimplexVersionString() string {
 	v := lpsimplex.Version
 	s := fmt.Sprintf("%s.%s.%s", v.Major, v.Minor, v.Patch)
